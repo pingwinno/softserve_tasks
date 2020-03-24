@@ -31,4 +31,9 @@ class DeduplicatorTest {
     void deduplicateWithBuffer() {
         Assertions.assertEquals(deduplicatedList,Deduplicator.deduplicate(sourceList,true));
     }
+
+    @Test
+    void exceptionOnNull(){
+        Assertions.assertThrows(IllegalArgumentException.class,()->Deduplicator.deduplicate(null,true));
+    }
 }

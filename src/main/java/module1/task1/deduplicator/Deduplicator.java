@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 public class Deduplicator {
+
     public static List<Integer> deduplicate(List<Integer> list, boolean withBuffer) {
         if (withBuffer) {
             return deduplicateWithBuffer(list);
