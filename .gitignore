@@ -1,0 +1,8 @@
+.idea/
+out/
+.idea_modules/
+
+auto-import.
+*.iml
+*.ipr
+*.iws
