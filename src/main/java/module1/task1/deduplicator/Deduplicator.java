@@ -7,7 +7,10 @@ import java.util.List;
 
 public class Deduplicator {
 
-    public static List<Integer> deduplicate(List<Integer> list, boolean withBuffer) {
+    public static <T> List<T> deduplicate(List<T> list, boolean withBuffer) {
+        if (list == null) {
+            throw new IllegalArgumentException("List is empty!!!");
+        }
         if (withBuffer) {
             return deduplicateWithBuffer(list);
         } else {
@@ -17,11 +20,11 @@ public class Deduplicator {
     }
 
 
-    private static void deduplicateWithoutBuffer(List<Integer> list) {
+    private static <T> void deduplicateWithoutBuffer(List<T> list) {
         for (int i = 0; i < list.size(); i++) {
             //flag detects first occurrence
             boolean flag = false;
-            Iterator<Integer> iterator = list.iterator();
+            Iterator<T> iterator = list.iterator();
             while (iterator.hasNext()) {
                 if (flag && list.get(i).equals(iterator.next())) {
                     iterator.remove();
@@ -32,8 +35,8 @@ public class Deduplicator {
         }
     }
 
-    private static List<Integer> deduplicateWithBuffer(List<Integer> list) {
-        LinkedHashSet<Integer> hashSet = new LinkedHashSet<>(list);
+    private static <T> List<T> deduplicateWithBuffer(List<T> list) {
+        LinkedHashSet<T> hashSet = new LinkedHashSet<>(list);
         return new ArrayList<>(hashSet);
     }
 
