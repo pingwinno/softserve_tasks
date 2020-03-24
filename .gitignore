@@ -1,6 +1,7 @@
 .idea/
 out/
 .idea_modules/
+target/
 
 auto-import.
 *.iml
