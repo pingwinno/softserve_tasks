@@ -141,8 +141,9 @@ public class SSHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
             if (bucket.getStartHash() <= keyHash && keyHash <= bucket.endHash) {
                 SSEntry<K, V> entry = getEntry(bucket, key);
                 if (entry != null) {
+                    V value = entry.value;
                     try {
-                        return entry.value;
+                        return value;
                     } finally {
                         bucket.getEntries().remove(entry);
                         --size;
@@ -386,6 +387,7 @@ public class SSHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
             return hashIterator.hasNext();
         }
 
+        @Override
         public final K next() {
             return hashIterator.next().key;
         }

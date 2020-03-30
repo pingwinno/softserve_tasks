@@ -2,7 +2,6 @@ package module1.task2;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.ThrowingSupplier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,31 +9,18 @@ import java.util.List;
 
 class SSArrayListTest {
 
-    @Test
-        //Default capacity = 10
-    void shouldCreateWhenDefaultConstructor() {
-        Assertions.assertDoesNotThrow((ThrowingSupplier<SSArrayList>) SSArrayList::new);
-    }
-
-    @Test
-    void shouldCreateWhenDifferentCapacity() {
-        for (int i = 0; i < 5; i++) {
-            int capacity = i * 1000;
-            Assertions.assertDoesNotThrow(() -> new SSArrayList(capacity));
-        }
-    }
-
+    //Test detection of negative capacity
     @Test
     void shouldThrowWhenNegativeCapacity() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> new SSArrayList<>(-2));
     }
-
+    //Test correct work of isEmpty method on empty list
     @Test
     void shouldReturnTrueWhenEmpty() {
         SSArrayList arrayList = new SSArrayList();
         Assertions.assertTrue(arrayList.isEmpty());
     }
-
+    //Test correct work of isEmpty method on non empty list
     @Test
     void shouldReturnFalseWhenNotEmpty() {
         SSArrayList<Object> arrayList = new SSArrayList<>();
@@ -42,7 +28,7 @@ class SSArrayListTest {
         arrayList.add(object);
         Assertions.assertFalse(arrayList.isEmpty());
     }
-
+    //Test correct work of isEmpty method on non empty list
     @Test
     void shouldBeEqualsWhenAddAndGet() {
         SSArrayList<Object> arrayList = new SSArrayList<>();
@@ -50,13 +36,44 @@ class SSArrayListTest {
         arrayList.add(object);
         Assertions.assertEquals(object, arrayList.get(0));
     }
+    //Test correct work of get and add methods
+    @Test
+    void shouldBeEqualsWhenAddOnIndexAndGet() {
+        SSArrayList<Object> arrayList = new SSArrayList<>();
+        Object object = new Object();
+        for (int i = 0; i < 100; i++) {
+            arrayList.add(new Object());
+        }
+        arrayList.add(50, object);
+        Assertions.assertEquals(object, arrayList.get(50));
+    }
 
+    //Test correct work of get and add to index methods and array index integrity
+    @Test
+    void shouldBeEqualsWhenAddOnIndexInTheMiddleAndGet() {
+        SSArrayList<Integer> arrayList1 = new SSArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            arrayList1.add(i);
+        }
+        int offset = 0;
+        arrayList1.add(50, 150);
+        for (int i = 0; i < 100; i++) {
+            if (i == 50) {
+                Assertions.assertEquals(150, arrayList1.get(i + offset));
+                offset++;
+            }
+            Assertions.assertEquals(i, arrayList1.get(i + offset));
+        }
+    }
+
+    //Test detection of call get with wrong index
     @Test
     void shouldThrowWhenIndexBiggerThanListSize() {
-        SSArrayList<Object> arrayList = new SSArrayList<>(0);
+        SSArrayList<Object> arrayList = new SSArrayList<>(10);
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> arrayList.get(1));
     }
 
+    //Test size reset after call clear method
     @Test
     void shouldReturnZeroWhenSizeAfterClear() {
         SSArrayList<Object> arrayList = new SSArrayList<>();
@@ -66,15 +83,7 @@ class SSArrayListTest {
         Assertions.assertEquals(0, arrayList.size());
     }
 
-    @Test
-    void shouldReturnNullWhenGetAfterClear() {
-        SSArrayList<Object> arrayList = new SSArrayList<>();
-        Object object = new Object();
-        arrayList.add(object);
-        arrayList.clear();
-        Assertions.assertNull(arrayList.get(0));
-    }
-
+    //Test list integrity after increase capacity
     @Test
     void shouldReturnSameObjectWhenEnsureCapacity() {
         SSArrayList<Object> arrayList = new SSArrayList<>(0);
@@ -85,6 +94,7 @@ class SSArrayListTest {
         }
     }
 
+    //Test positive case of call contains method
     @Test
     void shouldReturnTrueWhenContainsSameObject() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -92,6 +102,7 @@ class SSArrayListTest {
         Assertions.assertTrue(arrayList.contains(1000));
     }
 
+    //Test negative case of call contains method
     @Test
     void shouldReturnFalseWhenContainsNotSameObject() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -99,6 +110,7 @@ class SSArrayListTest {
         Assertions.assertFalse(arrayList.contains(100));
     }
 
+    //Test positive case of call contains method on null
     @Test
     void shouldReturnTrueWhenContainsNull() {
         SSArrayList<Object> arrayList = new SSArrayList<>();
@@ -106,6 +118,7 @@ class SSArrayListTest {
         Assertions.assertTrue(arrayList.contains(null));
     }
 
+    //Test correct work of toArray method and returned array indexing
     @Test
     void shouldBeEqualWhenToArray() {
         int poolSize = 100;
@@ -119,6 +132,8 @@ class SSArrayListTest {
         }
     }
 
+
+    //Test correct work of toArray method with passed array and returned array indexing
     @Test
     void shouldBeEqualWhenToArrayParametrized() {
         int poolSize = 100;
@@ -133,6 +148,7 @@ class SSArrayListTest {
         }
     }
 
+    //Test correct work of toArray method with passed smaller than list array and returned array indexing
     @Test
     void shouldBeEqualWhenToArrayParametrizedWithSmallerArray() {
         int poolSize = 100;
@@ -147,7 +163,7 @@ class SSArrayListTest {
         }
     }
 
-
+    //Test correct work of toArray method with passed larger than list array and returned array indexing
     @Test
     void shouldBeEqualWhenToArrayParametrizedWithLargerArray() {
         int poolSize = 100;
@@ -160,6 +176,7 @@ class SSArrayListTest {
         Assertions.assertNull(array[poolSize]);
     }
 
+    //Test list integrity after remove one element in the middle
     @Test
     void shouldBeEqualsWhenRemoveOneElement() {
         int poolSize = 10;
@@ -172,35 +189,64 @@ class SSArrayListTest {
         Assertions.assertEquals(poolSize - 1, arrayList.size());
     }
 
+    //Test negative case of call remove method
     @Test
     void shouldReturnFalseWhenRemoveNonExistingElement() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
         arrayList.add(10);
-        Assertions.assertFalse(arrayList.remove(20));
+        Assertions.assertFalse(arrayList.remove(Integer.valueOf(20)));
     }
 
+    //Test positive case of call remove method
     @Test
     void shouldReturnTrueWhenRemoveElement() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
         arrayList.add(10);
-        Assertions.assertTrue(arrayList.remove(10));
+        Assertions.assertTrue(arrayList.remove(Integer.valueOf(10)));
     }
 
+    //Test proper size changing after removing one element by index from list with one element
+    @Test
+    void shouldReturnZeroSizeWhenRemoveElementByIndex() {
+        SSArrayList<Integer> arrayList = new SSArrayList<>();
+        arrayList.add(10);
+        arrayList.remove(0);
+        Assertions.assertEquals(0, arrayList.size());
+    }
+
+    //Test value returning on remove by index call
+    @Test
+    void shouldReturnValueWhenRemoveElementByIndex() {
+        SSArrayList<Integer> arrayList = new SSArrayList<>();
+        arrayList.add(10);
+        Assertions.assertEquals(10, arrayList.remove(0));
+    }
+
+    //Test remove by index on wrong index call
+    @Test
+    void shouldThrowWhenRemoveElementByIndex() {
+        SSArrayList<Integer> arrayList = new SSArrayList<>();
+        arrayList.add(10);
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> arrayList.remove(1));
+    }
+
+    //Test proper size changing after removing one element value index from one element list
     @Test
     void shouldReturnZeroWhenSizeAfterRemoveElement() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
         arrayList.add(10);
-        arrayList.remove(10);
+        arrayList.remove(Integer.valueOf(10));
         Assertions.assertEquals(0, arrayList.size());
     }
 
+    //Test proper handling null remove from empty array
     @Test
     void shouldReturnFalseWhenRemoveNullOnEmptyArray() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
         Assertions.assertFalse(arrayList.remove(null));
     }
 
-
+    //Test positive case containAll and addAll methods
     @Test
     void shouldReturnTrueWhenAddAllElements() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -212,6 +258,7 @@ class SSArrayListTest {
         Assertions.assertTrue(sourceList.containsAll(arrayList));
     }
 
+    //Test negative case of containAll and addAll methods
     @Test
     void shouldReturnFalseWhenAddAllElements() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -223,7 +270,7 @@ class SSArrayListTest {
         Assertions.assertFalse(sourceList.containsAll(arrayList));
     }
 
-
+    //Test proper work of containAll method on three different lists
     @Test
     void shouldReturnTrueWhenContainsAll() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -246,6 +293,7 @@ class SSArrayListTest {
         Assertions.assertTrue(arrayList.containsAll(largerTargetList));
     }
 
+    //Test negative case of containAll method
     @Test
     void shouldReturnFalseWhenContainsAll() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -259,6 +307,7 @@ class SSArrayListTest {
         Assertions.assertFalse(arrayList.containsAll(targetList));
     }
 
+    //Test proper work of removeAll method combined with containsAll
     @Test
     void shouldReturnTrueWhenContainsAllAfterRemoveAll() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -277,6 +326,7 @@ class SSArrayListTest {
         Assertions.assertTrue(evenTargetList.containsAll(arrayList));
     }
 
+    //Test positive case of removeAll method
     @Test
     void shouldReturnTrueWhenRemoveAll() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -290,6 +340,7 @@ class SSArrayListTest {
         Assertions.assertTrue(arrayList.removeAll(oddTargetList));
     }
 
+    //Test negative case of removeAll method
     @Test
     void shouldReturnFalseWhenRemoveAll() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -301,6 +352,7 @@ class SSArrayListTest {
         Assertions.assertFalse(arrayList.removeAll(targetList));
     }
 
+    //Test proper work of retainAll method combined with containsAll
     @Test
     void shouldReturnTrueWhenContainsAllAfterRetainAll() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -315,6 +367,7 @@ class SSArrayListTest {
         Assertions.assertTrue(oddTargetList.containsAll(arrayList));
     }
 
+    //Test positive case of retainAll method
     @Test
     void shouldReturnTrueWhenRetainAll() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -328,6 +381,7 @@ class SSArrayListTest {
         Assertions.assertTrue(arrayList.retainAll(oddTargetList));
     }
 
+    //Test negative case of retainAll method
     @Test
     void shouldReturnFalseAfterRetainAll() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -339,6 +393,7 @@ class SSArrayListTest {
         Assertions.assertFalse(arrayList.retainAll(targetList));
     }
 
+    //Test positive case of equals method
     @Test
     void shouldReturnTrueWhenEquals() {
         SSArrayList<Integer> arrayList1 = new SSArrayList<>();
@@ -350,6 +405,7 @@ class SSArrayListTest {
         Assertions.assertEquals(arrayList1.equals(arrayList2), arrayList2.equals(arrayList1));
     }
 
+    //Test negative case of retainAll method
     @Test
     void shouldReturnFalseWhenEquals() {
         List<Integer> oddList = new ArrayList<>();
@@ -365,6 +421,7 @@ class SSArrayListTest {
         Assertions.assertEquals(oddList.equals(evenList), evenList.equals(oddList));
     }
 
+    //Test proper work of hashCode method
     @Test
     void shouldBeTrueWhenHashCode() {
         SSArrayList<Integer> arrayList1 = new SSArrayList<>();
@@ -376,6 +433,7 @@ class SSArrayListTest {
         Assertions.assertEquals(arrayList1.hashCode(), arrayList2.hashCode());
     }
 
+    //Test positive case of retainAll method
     @Test
     void shouldBeEqualsWhenCompareToStringWithReference() {
         SSArrayList<Integer> arrayList = new SSArrayList<>();
@@ -385,6 +443,57 @@ class SSArrayListTest {
             arrayList.add(i);
         }
         Assertions.assertEquals(Arrays.toString(referenceArray), arrayList.toString());
+    }
+
+    //Test proper work of addAll with index parameter method
+    @Test
+    void shouldBeTrueWhen() {
+        SSArrayList<Integer> arrayList1 = new SSArrayList<>();
+        SSArrayList<Integer> arrayList2 = new SSArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            arrayList1.add(i);
+            arrayList2.add(i);
+        }
+        arrayList1.addAll(80, arrayList2);
+    }
+
+    //Test proper work of set method and set returned value
+    @Test
+    void shouldBeEqualsWhenSet() {
+        SSArrayList<Integer> arrayList1 = new SSArrayList<>();
+        SSArrayList<Integer> arrayList2 = new SSArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            arrayList1.add(i);
+            arrayList2.add(i);
+        }
+        for (int i = 0; i < 100; i++) {
+            Assertions.assertEquals(i, arrayList1.set(i, arrayList2.get(Math.abs(i - 100 + 1))));
+            Assertions.assertEquals(Math.abs(i - 100 + 1), arrayList1.set(i, arrayList2.get(i)));
+        }
+    }
+
+    //Test proper work of indexOf method
+    @Test
+    void shouldBeEqualsWhenIndexOf() {
+        SSArrayList<Integer> arrayList1 = new SSArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            arrayList1.add(i);
+        }
+        for (int i = 0; i < 100; i++) {
+            Assertions.assertEquals(i,arrayList1.indexOf(i));
+        }
+    }
+
+    //Test proper work of lastIndexOf method
+    @Test
+    void shouldBeEqualsWhenLastIndexOf() {
+        SSArrayList<Integer> arrayList1 = new SSArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            arrayList1.add(i);
+        }
+        for (int i = 0; i < 100; i++) {
+            Assertions.assertEquals(i,arrayList1.lastIndexOf(i));
+        }
     }
 
 

@@ -11,8 +11,8 @@ import static module1.task2.SSHashMapTest.stringGenerator;
 public class SSHashMapEntrySetTest {
 
 
-    SSHashMap<Integer, Integer> intMap;
-    SSHashMap<String, String> stringSSHashMap;
+    private SSHashMap<Integer, Integer> intMap;
+    private SSHashMap<String, String> stringSSHashMap;
 
     @BeforeEach
     void init() {
@@ -20,6 +20,7 @@ public class SSHashMapEntrySetTest {
         intMap = new SSHashMap<>();
     }
 
+    //Test positive case of SSHashMap.EntrySet#contains method
     @Test
     void shouldReturnTrueWhenContainsOnEntrySet() {
         Map<Integer, Integer> sourceMap = new HashMap<>();
@@ -32,6 +33,7 @@ public class SSHashMapEntrySetTest {
         Assertions.assertTrue(intMap.entrySet().contains(entry));
     }
 
+    //Test negative case of SSHashMap.EntrySet#contains method
     @Test
     void shouldReturnFalseWhenContainsOnEntrySet() {
         Map<Integer, Integer> sourceMap = new HashMap<>();
@@ -44,54 +46,25 @@ public class SSHashMapEntrySetTest {
         Assertions.assertFalse(intMap.entrySet().contains(entry));
     }
 
-
-
+    //Test work of SSHashMap.EntrySet#remove method
     @Test
-    void shouldReturnTrueWhenContainsOnKeySet() {
+    void shouldReturnNullWhenRemoveFromEntrySet() {
+        Map<Integer, Integer> sourceMap = new HashMap<>();
+        sourceMap.put(1, 1);
         intMap.put(1, 1);
-        for (int element : intMap.keySet()) {
-            Assertions.assertTrue(intMap.keySet().contains(element));
+        Map.Entry<Integer, Integer> entry = null;
+        for (Map.Entry<Integer, Integer> element : sourceMap.entrySet()) {
+            entry = element;
         }
-    }
-
-
-    @Test
-    void shouldReturnNullWhenRemoveFromKeySet() {
-        intMap.put(1, 1);
-        intMap.keySet().remove(1);
+        intMap.entrySet().remove(entry);
         Assertions.assertNull(intMap.get(1));
+        Assertions.assertEquals(0, intMap.size());
+        Assertions.assertEquals(0, intMap.entrySet().size());
     }
 
-
+    //Test effect of SSHashMap.EntrySet#remove on parent map
     @Test
-    void shouldBeEqualsWhenCompareCounterAndSizeAfterPut() {
-        Set<Map.Entry<Integer, Integer>> collection = intMap.entrySet();
-        for (int i = 0; i < 1000; i++) {
-            intMap.put(i, i);
-            Assertions.assertEquals(i, collection.size() - 1);
-        }
-    }
-
-    @Test
-    void shouldBeEqualsWhenCompareCounterAndSizeAfterRemove() {
-        Map<Integer, Integer> referenceMap = new HashMap<>();
-        for (int i = 0; i < 1000; i++) {
-            referenceMap.put(i, i);
-            intMap.put(i, i);
-        }
-        Set<Map.Entry<Integer, Integer>> referenceCollection = referenceMap.entrySet();
-        Set<Map.Entry<Integer, Integer>> collection = intMap.entrySet();
-        int counter = 1000;
-        for (Map.Entry<Integer, Integer> entry : referenceCollection) {
-            collection.remove(entry);
-            --counter;
-            Assertions.assertEquals(counter, collection.size());
-            Assertions.assertEquals(counter, intMap.size());
-        }
-    }
-
-    @Test
-    void shouldBeTrueWhenClear() {
+    void shouldBeTrueWhenCallClearOnEntrySet() {
         for (int i = 0; i < 1000; i++) {
             intMap.put(i, i);
         }
@@ -99,12 +72,15 @@ public class SSHashMapEntrySetTest {
         Assertions.assertTrue(intMap.isEmpty());
     }
 
+    //Test effect of SSHashMap.EntrySet#remove on it self in positive case
     @Test
     void shouldReturnTrueWhenEmpty() {
-        intMap.put(1,1);
+        intMap.put(1, 1);
         intMap.entrySet().clear();
         Assertions.assertTrue(intMap.entrySet().isEmpty());
     }
+
+    //Test effect of SSHashMap.EntrySet#remove on it self in negative case
     @Test
     void shouldReturnFalseWhenEmpty() {
         for (int i = 0; i < 1000; i++) {
@@ -113,44 +89,13 @@ public class SSHashMapEntrySetTest {
         Assertions.assertFalse(intMap.entrySet().isEmpty());
     }
 
+    //Test SSHashMap.EntrySet iterator realization
     @Test
-    void shouldBeNullWhenGetAfterClear() {
-        for (int i = 0; i < 1000; i++) {
-            intMap.put(i, i);
-        }
-        intMap.entrySet().clear();
-        for (int i = 0; i < 1000; i++) {
-            Assertions.assertNull(intMap.get(i));
-        }
-    }
-
-    @Test
-    void shouldReturnNullWhenRemoveEntitiesFromEntryySet() {
-        
-        Map<String, String> sourceMap = new HashMap<>();
-        for (int i = 0; i < 1000; i++) {
-            sourceMap.put(stringGenerator(), stringGenerator());
-        }
-
-        for (Map.Entry<String, String> entry : sourceMap.entrySet()) {
-            stringSSHashMap.put(entry.getKey(), entry.getValue());
-        }
-        Set<Map.Entry<String, String>> set = stringSSHashMap.entrySet();
-        for (Map.Entry<String, String> entry : sourceMap.entrySet()) {
-            set.remove(entry);
-            Assertions.assertNull(stringSSHashMap.get(entry.getKey()));
-        }
-        Assertions.assertEquals(0, stringSSHashMap.size());
-    }
-
-    @Test
-    void shouldReturnNullWhenRemoveFromKeyIterator() {
-        
+    void shouldReturnNullWhenCallRemoveFromEntryIterator() {
         Map<String, String> sourceMap = new HashMap<>();
         for (int i = 0; i < 100; i++) {
             sourceMap.put(stringGenerator(), stringGenerator());
         }
-
         for (Map.Entry<String, String> entry : sourceMap.entrySet()) {
             stringSSHashMap.put(entry.getKey(), entry.getValue());
         }
@@ -166,9 +111,9 @@ public class SSHashMapEntrySetTest {
         Assertions.assertEquals(0, stringSSHashMap.size());
     }
 
+    //Test proper work SSHashMap.EntrySet#removeAll
     @Test
-    void shouldReturnNullWhenRemoveAllEntrySet() {
-        
+    void shouldReturnNullWhenCallRemoveAllEntrySet() {
         Map<String, String> sourceMap = new HashMap<>();
         for (int i = 0; i < 1000; i++) {
             sourceMap.put(stringGenerator(), stringGenerator());
@@ -184,19 +129,22 @@ public class SSHashMapEntrySetTest {
         Assertions.assertEquals(0, stringSSHashMap.size());
     }
 
+    // Test positive case of Iterator#hasNext method on SSHashMap.EntrySet
     @Test
-    void shouldReturnTrueWhenHasNext() {
+    void shouldReturnTrueWhenCallHasNext() {
         intMap.put(1, 1);
         Iterator iterator = intMap.entrySet().iterator();
         Assertions.assertTrue(iterator.hasNext());
     }
 
+    // Test negative case of Iterator#hasNext method on SSHashMap.EntrySet
     @Test
-    void shouldReturnFalseWhenWhenHasNext() {
+    void shouldReturnFalseWhenWhenHCallasNext() {
         Iterator iterator = intMap.entrySet().iterator();
         Assertions.assertFalse(iterator.hasNext());
     }
 
+    // Test work of Iterator#next method on SSHashMap.EntrySet
     @Test
     void shouldBeEqualsWhenNext() {
         intMap.put(1, 1);
@@ -208,10 +156,11 @@ public class SSHashMapEntrySetTest {
         Assertions.assertEquals(iterator.next(), entry);
     }
 
+    //Test iterator flow violation handling trough Iterator#next call
     @Test
-    void shouldThrowWhenWhenNext() {
+    void shouldThrowNoSuchElementExceptionWhenWhenNext() {
         Iterator iterator = intMap.entrySet().iterator();
-        Assertions.assertThrows(NoSuchElementException.class,iterator::next);
+        Assertions.assertThrows(NoSuchElementException.class, iterator::next);
     }
 
 

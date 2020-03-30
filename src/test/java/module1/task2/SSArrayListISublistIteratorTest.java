@@ -4,18 +4,22 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-public class SSArrayListIteratorTest {
+public class SSArrayListISublistIteratorTest {
 
-    private SSArrayList<Integer> arrayList;
+    private List<Integer> arrayList;
     private ListIterator<Integer> listIterator;
 
 
     @BeforeEach
     void init() {
         arrayList = new SSArrayList<>();
+        arrayList.add(1);
+        arrayList = arrayList.subList(0, 1);
+        arrayList.clear();
         for (int i = 0; i < 10; i++) {
             arrayList.add(i);
         }

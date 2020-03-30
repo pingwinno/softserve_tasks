@@ -13,8 +13,8 @@ import static module1.task2.SSHashMapTest.stringGenerator;
 
 public class SSHashMapKeySetTest {
 
-    SSHashMap<Integer, Integer> integerSSHashMap;
-    SSHashMap<String, String> stringSSHashMap;
+    private SSHashMap<String, String> stringSSHashMap;
+    private SSHashMap<Integer, Integer> integerSSHashMap;
 
     @BeforeEach
     void init() {
@@ -22,49 +22,55 @@ public class SSHashMapKeySetTest {
         integerSSHashMap = new SSHashMap<>();
     }
 
+    //Test positive case of SSHashMap.KeySet#contains method
     @Test
-    void shouldReturnTrueWhenContainsOnEntrySet() {
+    void shouldReturnTrueWhenCallContainsOnKeySet() {
         integerSSHashMap.put(1, 1);
         Assertions.assertTrue(integerSSHashMap.keySet().contains(1));
     }
 
+    //Test negative case of SSHashMap.KeySet#contains method
     @Test
-    void shouldReturnFalseWhenContainsOnEntrySet() {
+    void shouldReturnFalseWhenCallContainsOnKeySet() {
         integerSSHashMap.put(1, 1);
         Assertions.assertFalse(integerSSHashMap.keySet().contains(2));
     }
 
+    //Test work of SSHashMap.KeySet#remove method
     @Test
-    void  shouldReturnNullWhenRemoveFromKeySet(){
-        integerSSHashMap.put(1,1);
+    void shouldReturnNullWhenCallRemoveFromKeySet() {
+        integerSSHashMap.put(1, 1);
         integerSSHashMap.keySet().remove(1);
         Assertions.assertNull(integerSSHashMap.get(1));
     }
 
+    //Test proper work of size changes after SSHashMap.KeySet#put
     @Test
-    void shouldBeEqualsWhenCompareCounterAndSizeAfterPut() {
+    void shouldBeEqualsWhenCallCompareCounterAndSizeAfterPut() {
         Set<Integer> collection = integerSSHashMap.keySet();
         for (int i = 0; i < 1000; i++) {
             integerSSHashMap.put(i, i);
-            Assertions.assertEquals(i,collection.size()-1);
+            Assertions.assertEquals(i, collection.size() - 1);
         }
     }
 
+    //Test proper work of size changes after SSHashMap.KeySet#remove
     @Test
     void shouldBeEqualsWhenCompareCounterAndSizeAfterRemove() {
         for (int i = 0; i < 1000; i++) {
             integerSSHashMap.put(i, i);
         }
         Set<Integer> collection = integerSSHashMap.keySet();
-        for (int i = 1000; i >=0  ; i--) {
+        for (int i = 1000; i >= 0; i--) {
             collection.remove(i);
-            Assertions.assertEquals(i,collection.size());
+            Assertions.assertEquals(i, collection.size());
             Assertions.assertEquals(i, integerSSHashMap.size());
         }
     }
 
+    //Test effect of SSHashMap.KeySet#clear on parent map
     @Test
-    void shouldBeTrueWhenClear() {
+    void shouldBeTrueWhenCallClear() {
         for (int i = 0; i < 1000; i++) {
             integerSSHashMap.put(i, i);
         }
@@ -72,8 +78,9 @@ public class SSHashMapKeySetTest {
         Assertions.assertTrue(integerSSHashMap.isEmpty());
     }
 
+    //Test effect of SSHashMap.KeySet#clear on parent map
     @Test
-    void shouldBeNullWhenGetAfterClear() {
+    void shouldBeNullWhenCallGetAfterClear() {
         for (int i = 0; i < 1000; i++) {
             integerSSHashMap.put(i, i);
         }
@@ -84,27 +91,10 @@ public class SSHashMapKeySetTest {
         }
     }
 
+    //Test effect of SSHashMap.KeySet.Iterator#remove on parent map
     @Test
-    void shouldReturnNullWhenRemoveEntitiesFromKeySet() {
-        
-        Map<String, String> sourceMap = new HashMap<>();
-        for (int i = 0; i < 1000; i++) {
-            sourceMap.put(stringGenerator(), stringGenerator());
-        }
+    void shouldReturnNullWhenCallRemoveFromKeyIterator() {
 
-        for (Map.Entry<String, String> entry : sourceMap.entrySet()) {
-            stringSSHashMap.put(entry.getKey(), entry.getValue());
-        }
-        Set<String> set = stringSSHashMap.keySet();
-        for (Map.Entry<String, String> entry : sourceMap.entrySet()) {
-            set.remove(entry.getKey());
-            Assertions.assertNull(stringSSHashMap.get(entry.getKey()));
-        }
-        Assertions.assertEquals(0,stringSSHashMap.size());
-    }
-    @Test
-    void shouldReturnNullWhenRemoveFromKeyIterator() {
-        
         Map<String, String> sourceMap = new HashMap<>();
         for (int i = 0; i < 100; i++) {
             sourceMap.put(stringGenerator(), stringGenerator());
@@ -115,19 +105,19 @@ public class SSHashMapKeySetTest {
         }
         Set<String> set = stringSSHashMap.keySet();
         Iterator<String> iterator = set.iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             iterator.next();
             iterator.remove();
         }
         for (Map.Entry<String, String> entry : sourceMap.entrySet()) {
             Assertions.assertFalse(stringSSHashMap.containsKey(entry.getKey()));
         }
-        Assertions.assertEquals(0,stringSSHashMap.size());
+        Assertions.assertEquals(0, stringSSHashMap.size());
     }
 
+    //Test effect of SSHashMap.KeySet#removeAll on parent map
     @Test
     void shouldReturnNullWhenRemoveAllKeySet() {
-        
         Map<String, String> sourceMap = new HashMap<>();
         for (int i = 0; i < 1000; i++) {
             sourceMap.put(stringGenerator(), stringGenerator());
@@ -140,7 +130,7 @@ public class SSHashMapKeySetTest {
         for (Map.Entry<String, String> entry : sourceMap.entrySet()) {
             Assertions.assertNull(stringSSHashMap.get(entry.getKey()));
         }
-        Assertions.assertEquals(0,stringSSHashMap.size());
+        Assertions.assertEquals(0, stringSSHashMap.size());
     }
 
 

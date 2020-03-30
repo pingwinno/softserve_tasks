@@ -13,9 +13,8 @@ import static module1.task2.SSHashMapTest.stringGenerator;
 
 public class SSHashMapValuesTest {
 
-    SSHashMap<Integer, Integer> integerSSHashMap;
-
-    SSHashMap<String, String> stringSSHashMap;
+    private SSHashMap<Integer, Integer> integerSSHashMap;
+    private SSHashMap<String, String> stringSSHashMap;
 
     @BeforeEach
     void init() {
@@ -23,25 +22,29 @@ public class SSHashMapValuesTest {
         integerSSHashMap = new SSHashMap<>();
     }
 
+    //Test SSHashMap.Values#contains positive case
     @Test
-    void shouldReturnTrueWhenContainsOnEntrySet() {
+    void shouldReturnTrueWhenCallContainsOnEntrySet() {
         integerSSHashMap.put(1, 1);
         Assertions.assertTrue(integerSSHashMap.values().contains(1));
     }
 
+    //Test SSHashMap.Values#contains negative case
     @Test
-    void shouldReturnFalseWhenContainsOnEntrySet() {
+    void shouldReturnFalseWhenCallContainsOnEntrySet() {
         integerSSHashMap.put(1, 1);
         Assertions.assertFalse(integerSSHashMap.values().contains(2));
     }
 
+    //Test SSHashMap.Values#size with empty map
     @Test
-    void shouldReturnZeroWhenEmptyMap() {
+    void shouldReturnZeroWhenCallSizeOnEmptyMap() {
         Assertions.assertEquals(0, integerSSHashMap.values().size());
     }
 
+    //Check values set integrity after adding elements to parent map
     @Test
-    void shouldBeEqualsWhenCompareCounterAndSizeAfterPut() {
+    void shouldBeEqualsWhenCompareCounterAndSizeAfterCallPut() {
         Collection<Integer> collection = integerSSHashMap.values();
         for (int i = 0; i < 1000; i++) {
             integerSSHashMap.put(i, i);
@@ -49,8 +52,9 @@ public class SSHashMapValuesTest {
         }
     }
 
+    //Test SSHashMap.Values#clear
     @Test
-    void shouldBeTrueWhenClear() {
+    void shouldReturnTrueWhenCallClear() {
         for (int i = 0; i < 1000; i++) {
             integerSSHashMap.put(i, i);
         }
@@ -58,8 +62,9 @@ public class SSHashMapValuesTest {
         Assertions.assertTrue(integerSSHashMap.isEmpty());
     }
 
+    //Check parent map integrity after clear on values set
     @Test
-    void shouldBeNullWhenGetAfterClear() {
+    void shouldBeNullWhenCallGetAfterClear() {
         for (int i = 0; i < 1000; i++) {
             integerSSHashMap.put(i, i);
         }
@@ -69,6 +74,7 @@ public class SSHashMapValuesTest {
         }
     }
 
+    //Check sizes values set and parent map after remove elements in values set
     @Test
     void shouldBeEqualsWhenCompareCounterAndSizeAfterRemove() {
         for (int i = 0; i < 1000; i++) {
@@ -82,16 +88,17 @@ public class SSHashMapValuesTest {
         }
     }
 
+    //Check SSHashMap.Values#remove
     @Test
-    void shouldReturnNullWhenRemoveFromValuesCollection() {
+    void shouldReturnNullWhenCallRemoveFromValuesCollection() {
         integerSSHashMap.put(1, 1);
         integerSSHashMap.values().remove(1);
         Assertions.assertNull(integerSSHashMap.get(1));
     }
 
+    //Test effect SSHashMap.Value#remove call on parent map
     @Test
     void shouldReturnNullWhenRemoveElementsFromValuesCollection() {
-
         Map<String, String> sourceMap = new HashMap<>();
         for (int i = 0; i < 1000; i++) {
             sourceMap.put(stringGenerator(), stringGenerator());
@@ -107,9 +114,9 @@ public class SSHashMapValuesTest {
         }
     }
 
+    //Test effect of SSHashMap.Values.Iterator#remove on parent map
     @Test
     void shouldReturnNullWhenRemoveElementsFromValuesIterator() {
-
         Map<String, String> sourceMap = new HashMap<>();
         for (int i = 0; i < 1000; i++) {
             sourceMap.put(stringGenerator(), stringGenerator());
@@ -129,7 +136,7 @@ public class SSHashMapValuesTest {
         }
     }
 
-
+    //Test effect of SSHashMap.Values#removeAll on parent map
     @Test
     void shouldReturnNullWhenRemoveAllValuesCollection() {
 
@@ -148,6 +155,7 @@ public class SSHashMapValuesTest {
         Assertions.assertEquals(0, stringSSHashMap.size());
     }
 
+    //Test effect of SSHashMap.Values#retainAll on parent map
     @Test
     void shouldReturnNullWhenRetainAllValuesCollection() {
 
