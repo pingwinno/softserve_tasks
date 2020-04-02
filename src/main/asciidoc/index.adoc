@@ -13,7 +13,6 @@
 
 You can use this API to operate users database.
 
-
 [[overview-get]]
 == GET
 

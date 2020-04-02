@@ -1,6 +1,5 @@
 package com.softserveinc.webapp.service;
 
-import com.softserveinc.webapp.exception.UserAlreadyExistsException;
 import com.softserveinc.webapp.exception.UserNotFoundException;
 import com.softserveinc.webapp.exception.WrongParamsException;
 import com.softserveinc.webapp.model.User;
@@ -12,33 +11,28 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     @Autowired
     Validator validator;
     @Autowired
     private UserRepository userRepository;
 
-    public User getUser(long id) throws UserNotFoundException {
+    public User getUser(UUID id) throws UserNotFoundException {
         return userRepository
                 .findById(id)
                 .orElseThrow(() -> new
                         UserNotFoundException(String.format("User with id=%s not found", id)));
     }
 
-    public void addUser(User user) throws UserAlreadyExistsException, WrongParamsException {
+    public User addUser(User user) throws WrongParamsException {
         validate(user);
-        if (userRepository.findById(user.getId()).isPresent()) {
-            throw new UserAlreadyExistsException(String.format("User with id %s already exists", user.getId()));
-        }
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
-    public void updateUser(long id, User user) throws UserNotFoundException, WrongParamsException {
-        if (id != user.getId()) {
-            throw new WrongParamsException("Id in path and in request body are not equals");
-        }
+    public void updateUser(UUID id, User user) throws UserNotFoundException, WrongParamsException {
         validate(user);
         userRepository
                 .findById(id)
@@ -48,7 +42,7 @@ public class UserServiceImpl implements UserService{
         userRepository.save(user);
     }
 
-    public void deleteUser(long id) throws UserNotFoundException {
+    public void deleteUser(UUID id) throws UserNotFoundException {
         userRepository.delete(userRepository
                 .findById(id)
                 .orElseThrow(

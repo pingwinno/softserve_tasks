@@ -1,15 +1,22 @@
 package com.softserveinc.webapp.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
 import com.softserveinc.webapp.repository.UserRepository;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -17,117 +24,94 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestPropertySource(locations = "classpath:application-integrationtest.properties")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+
 public class IntegrationTest {
-    private static User user = new User();
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
+    private User userWithID = new User();
+    private User userWithoutID = new User();
+    private String userJsonWithID;
     @Autowired
     private MockMvc mockMvc;
-    private String userJson = "{\"id\":0,\"name\":\"user0\"" +
-            ",\"password\":\"somePass0\"" +
-            ",\"description\":\"some awesome user0\"" +
-            ",\"role\":\"ADMIN\"}";
 
-    @BeforeAll
-    public static void init() {
-        int i = 0;
-        user.setId(i);
-        user.setName("user" + i);
-        user.setPassword("somePass" + i);
-        user.setDescription("some awesome user" + i);
-        user.setRole(Role.ADMIN);
+    @BeforeEach
+    public void init() throws JsonProcessingException {
+        userWithoutID.setName("user");
+        userWithoutID.setPassword("somePass");
+        userWithoutID.setDescription("some user");
+        userWithoutID.setRole(Role.ADMIN);
+        userWithID.setName("user");
+        userWithID.setPassword("somePass");
+        userWithID.setDescription("some user");
+        userWithID.setRole(Role.ADMIN);
+        ObjectMapper objectMapper = new ObjectMapper();
+        userWithID = userRepository.save(userWithoutID);
+        userJsonWithID = objectMapper.writeValueAsString(userWithID);
     }
 
-    //Test get method
+
     @Test
+    @DisplayName("Test get method")
     public void shouldReturnUserWhenCallGet() throws Exception {
-        userRepository.save(user);
-        this.mockMvc.perform(get("/user/0")).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().string(containsString(
-                        userJson)));
-        userRepository.deleteAll();
+        this.mockMvc.perform(get("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().string(containsString(userJsonWithID)));
     }
 
-    //Test get method with request non existing user
     @Test
+    @DisplayName("Test get method with request non existing user")
     public void shouldReturn404WhenCallGet() throws Exception {
-        this.mockMvc.perform(get("/user/1")).andDo(print()).andExpect(status().isNotFound());
+        UUID uuid = UUID.randomUUID();
+        this.mockMvc.perform(get("/user/{id}", uuid)).andDo(print()).andExpect(status().isNotFound());
     }
 
-    //Test add method
     @Test
+    @DisplayName("Test add method")
     public void shouldReturn200WhenCallPostForAdd() throws Exception {
         this.mockMvc.perform(post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
-                .content(userJson))
+                .content(userJsonWithID))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
-    //Test add method with duplicated id
     @Test
-    public void shouldReturn400WhenCallPostWithDuplicatedObjects() throws Exception {
-        userRepository.save(user);
-        this.mockMvc.perform(post("/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF8")
-                .content(userJson))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-        userRepository.deleteAll();
-    }
-
-    //Test update method
-    @Test
+    @DisplayName("Test update method")
     public void shouldReturn200WhenCallPatchForUpdate() throws Exception {
-        userRepository.save(user);
-        this.mockMvc.perform(patch("/user/0")
+        this.mockMvc.perform(patch("/user/{id}", userWithID.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
-                .content(userJson))
+                .content(userJsonWithID))
                 .andDo(print())
                 .andExpect(status().isOk());
-        userRepository.deleteAll();
-    }
-
-    //Test update method with id mismatch in path and body request
-    @Test
-    public void shouldReturn400WhenCallPatchForUpdateWithIDsMismatch() throws Exception {
-        this.mockMvc.perform(patch("/user/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF8")
-                .content(userJson))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-        userRepository.deleteAll();
     }
 
     @Test
+    @DisplayName("Test patch method with non existing user")
     public void shouldReturn404WhenCallPatchForUpdateWithNonExistingUser() throws Exception {
-        userRepository.deleteAll();
-        this.mockMvc.perform(patch("/user/0")
+        this.mockMvc.perform(patch("/user/{id}", UUID.randomUUID())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
-                .content(userJson))
+                .content(userJsonWithID))
                 .andDo(print())
                 .andExpect(status().isNotFound());
-        userRepository.deleteAll();
     }
 
-    //Test delete method
     @Test
+    @DisplayName("Test delete method")
     public void shouldReturn200WhenCallDelete() throws Exception {
-        userRepository.save(user);
-        this.mockMvc.perform(delete("/user/0")).andDo(print()).andExpect(status().isOk());
+        this.mockMvc.perform(delete("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk());
     }
 
-    //Test delete method with request non existing user
     @Test
+    @DisplayName("Test delete method with request non existing user")
     public void shouldReturn404WhenCallDelete() throws Exception {
-        userRepository.deleteAll();
-        this.mockMvc.perform(delete("/user/1")).andDo(print()).andExpect(status().isNotFound());
+        this.mockMvc.perform(delete("/user/{id}", UUID.randomUUID()))
+                .andDo(print()).andExpect(status().isNotFound());
     }
 }

@@ -1,18 +1,27 @@
 package com.softserveinc.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Objects;
+import java.util.UUID;
 
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Entity(name = "USERS")
 public class User {
-
-    @NotNull(message = "ID can't be empty")
-    private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
     @NotBlank(message = "Name can't be empty")
     private String name;
-    @Size(min = 8,max = 64, message = "Password should be longer than 8 symbols")
+    @Size(min = 8, max = 64, message = "Password should be longer than 8 symbols")
+
     private String password;
     @NotBlank(message = "Description can't be empty")
     private String description;
@@ -32,15 +41,28 @@ public class User {
     }
 
     @Override
+
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", description='" + description + '\'' +
+                ", role=" + role +
+                '}';
+    }
+
+    @Override
+
     public int hashCode() {
         return Objects.hash(id);
     }
 
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

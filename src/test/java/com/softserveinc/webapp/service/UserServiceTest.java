@@ -1,18 +1,19 @@
 package com.softserveinc.webapp.service;
 
-import com.softserveinc.webapp.exception.UserAlreadyExistsException;
 import com.softserveinc.webapp.exception.UserNotFoundException;
 import com.softserveinc.webapp.exception.WrongParamsException;
 import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
 import com.softserveinc.webapp.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -28,88 +29,77 @@ class UserServiceTest {
 
     @BeforeEach
     public void init() {
-        int i = 0;
-        user.setId(i);
-        user.setName("user" + i);
-        user.setPassword("somePass" + i);
-        user.setDescription("some awesome user" + i);
+        UUID uuid = UUID.randomUUID();
+        user.setId(uuid);
+        user.setName("user" + uuid);
+        user.setPassword("somePass" + uuid);
+        user.setDescription("some awesome user" + uuid);
         user.setRole(Role.ADMIN);
     }
 
-    //Test user search by id
     @Test
+    @DisplayName("Test user search by id")
     void shouldReturnUserWhenCallGetUser() throws UserNotFoundException {
-        when(userRepository.findById(0L)).thenReturn(Optional.of(user));
-        assertNotNull(userService.getUser(0));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        assertNotNull(userService.getUser(user.getId()));
     }
 
-    //Test handling empty search result
     @Test
+    @DisplayName("Test handling empty search result")
     void shouldThrowUserNotFoundExceptionWhenCallGetUser() {
-        when(userRepository.findById(0L)).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> userService.getUser(0));
+        UUID uuid = UUID.randomUUID();
+        when(userRepository.findById(uuid)).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.getUser(uuid));
     }
 
-    //Test adding user
     @Test
+    @DisplayName("Test adding user")
     void shouldThrowsNothingWhenCallAddUser() {
         when(userRepository.save(user)).thenReturn(user);
         assertDoesNotThrow(() -> userService.addUser(user));
     }
 
-    //Test handling wrong params validation
     @Test
+    @DisplayName("Test handling wrong params validation")
     void shouldThrowIllegalArgumentExceptionWhenCallAddUserWithIncorrectInput() {
         user.setPassword("");
         assertThrows(WrongParamsException.class, () -> userService.addUser(user));
     }
 
-    //Test duplicate handling
     @Test
-    void shouldThrowUserAlreadyExistsExceptionWhenCallAddUserThatAlreadyPresentInDB() {
-        when(userRepository.findById(0L)).thenReturn(Optional.of(user));
-        assertThrows(UserAlreadyExistsException.class, () -> userService.addUser(user));
-    }
-
-    //Test adding user
-    @Test
+    @DisplayName("Test adding user")
     void shouldThrowNothingWhenCallUpdateUser() {
-        when(userRepository.findById(0L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
-        assertDoesNotThrow(() -> userService.updateUser(0, user));
+        assertDoesNotThrow(() -> userService.updateUser(user.getId(), user));
     }
 
-    //Test handling update non existing user
     @Test
+    @DisplayName("Test handling update non existing user")
     void shouldThrowUserNotFoundExceptionWhenCallUpdateUserThatNotExist() {
-        when(userRepository.findById(0L)).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> userService.updateUser(0, user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.updateUser(user.getId(), user));
     }
 
-    //Test handling update with id mismatch in params and user object
     @Test
-    void shouldThrowIllegalArgumentExceptionWhenCallUpdateUserWithIdMismatch() {
-        assertThrows(WrongParamsException.class, () -> userService.updateUser(1, user));
-    }
-
-    //Test handling update with wrong user object
-    @Test
+    @DisplayName("Test handling update with wrong user object")
     void shouldThrowIllegalArgumentExceptionWhenCallUpdateUserWithIncorrectInput() {
         user.setPassword("");
-        assertThrows(WrongParamsException.class, () -> userService.updateUser(0, user));
+        assertThrows(WrongParamsException.class, () -> userService.updateUser(user.getId(), user));
     }
 
-    //Test user delete by id
     @Test
+    @DisplayName("Test user delete by id")
     void shouldThrowNothingWhenCallDeleteUser() {
-        when(userRepository.findById(0L)).thenReturn(Optional.of(user));
-        assertDoesNotThrow(() -> userService.deleteUser(0));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        assertDoesNotThrow(() -> userService.deleteUser(user.getId()));
     }
 
-    //Test handling delete non existing user
     @Test
+    @DisplayName("Test handling delete non existing user")
     void shouldThrowUserNotFoundExceptionWhenCallDeleteUser() {
-        when(userRepository.findById(0L)).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(0));
+        UUID uuid = UUID.randomUUID();
+        when(userRepository.findById(uuid)).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(uuid));
     }
 }
