@@ -1,0 +1,76 @@
+= API Doc
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+[[overview]]
+= Overview
+
+You can use this API to operate users database.
+
+
+[[overview-get]]
+== GET
+
+With this method you can get user info by id.
+
+[[overview-get-success]]
+=== Success
+
+operation::user/shouldReturnUserWhenCallGet[]
+
+[[overview-get-failed]]
+=== Failed
+
+operation::user/shouldReturn404WhenCallGet[snippets='http-response']
+
+[[overview-post]]
+== POST
+
+With this method you can get user info by id.
+
+[[overview-post-success]]
+=== Success
+
+operation::user/shouldReturn200WhenCallPostForAdd[]
+
+[[overview-post-failed]]
+=== Failed
+
+operation::user/shouldReturn400WhenCallPostWithDuplicatedObjects[snippets='http-response']
+
+[[overview-put]]
+== put
+
+With this method you can get user info by id.
+
+[[overview-put-success]]
+=== Success
+
+operation::user/shouldReturn200WhenCallPatchForUpdate[]
+
+[[overview-put-failed]]
+=== Failed
+
+operation::user/shouldReturn400WhenCallPatchForUpdateWithIDsMismatch[snippets='http-response']
+operation::user/shouldReturn404WhenCallPatchForUpdateWithNonExistingUser[snippets='http-response']
+
+[[overview-delete]]
+== GET
+
+With this method you can get user info by id.
+
+[[overview-delete-success]]
+=== Success
+
+operation::user/shouldReturn200WhenCallDelete[]
+
+[[overview-delete-failed]]
+=== Failed
+
+operation::user/shouldReturn404WhenCallDelete[snippets='http-response']
