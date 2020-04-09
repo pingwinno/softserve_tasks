@@ -2,6 +2,7 @@ package com.softserveinc.webapp.service;
 
 import com.softserveinc.webapp.exception.UserAlreadyExistsException;
 import com.softserveinc.webapp.exception.UserNotFoundException;
+import com.softserveinc.webapp.exception.WrongParamsException;
 import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
 import com.softserveinc.webapp.repository.UserRepository;
@@ -60,7 +61,7 @@ class UserServiceTest {
     @Test
     void shouldThrowIllegalArgumentExceptionWhenCallAddUserWithIncorrectInput() {
         user.setPassword("");
-        assertThrows(IllegalArgumentException.class, () -> userService.addUser(user));
+        assertThrows(WrongParamsException.class, () -> userService.addUser(user));
     }
 
     //Test duplicate handling
@@ -88,14 +89,14 @@ class UserServiceTest {
     //Test handling update with id mismatch in params and user object
     @Test
     void shouldThrowIllegalArgumentExceptionWhenCallUpdateUserWithIdMismatch() {
-        assertThrows(IllegalArgumentException.class, () -> userService.updateUser(1, user));
+        assertThrows(WrongParamsException.class, () -> userService.updateUser(1, user));
     }
 
     //Test handling update with wrong user object
     @Test
     void shouldThrowIllegalArgumentExceptionWhenCallUpdateUserWithIncorrectInput() {
         user.setPassword("");
-        assertThrows(IllegalArgumentException.class, () -> userService.updateUser(0, user));
+        assertThrows(WrongParamsException.class, () -> userService.updateUser(0, user));
     }
 
     //Test user delete by id

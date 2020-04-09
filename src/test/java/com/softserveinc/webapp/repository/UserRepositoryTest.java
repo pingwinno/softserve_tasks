@@ -6,22 +6,25 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@SpringBootTest
+@DataJpaTest
+@TestPropertySource(locations = "classpath:application-integrationtest.properties")
 class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
-    private List<User> users = generateData();
+    private List<User> users = new ArrayList<>();
+
 
     @BeforeEach
     void init() {
-        userRepository.deleteAll();
-        userRepository.saveAll(users);
+        users.clear();
+        userRepository.saveAll(generateData()).forEach(users::add);
     }
 
     //Should find user with id 0
@@ -34,17 +37,16 @@ class UserRepositoryTest {
     //Test findAll method and compare result with generated set
     @Test
     void shouldBeEqualsWhenCallFindAll() {
-        Iterable<User> iterable = users;
-        Assertions.assertEquals(iterable, userRepository.findAll());
+        List<User> usersCallResult = new ArrayList<>();
+        userRepository.findAll().forEach(usersCallResult::add);
+        Assertions.assertTrue(usersCallResult.containsAll(users));
     }
 
     //Test saveAll method and try to find each added element
     @Test
     void shouldBeEqualsWhenSaveAll() {
-        userRepository.deleteAll();
-        userRepository.saveAll(users);
         for (User user : users) {
-            Assertions.assertEquals(user, userRepository.findById(user.getId()).orElseThrow());
+            Assertions.assertEquals(user, userRepository.findById(user.getId()).orElse(null));
         }
     }
 
@@ -64,7 +66,7 @@ class UserRepositoryTest {
     //Should successfully update old user
     @Test
     void shouldReturnNewValueWhenUpdateRecord() {
-        User user = userRepository.findById(0L).orElseThrow();
+        User user = users.get(0);
         int i = 100;
         user.setName("shiro" + i);
         user.setPassword("somePass" + i);
@@ -76,7 +78,16 @@ class UserRepositoryTest {
     //Should successfully delete user and existsById should return false
     @Test
     void shouldReturnFalseWhenDeleteRecord() {
-        User user = users.get(0);
+        int i = 40;
+        User user = new User();
+        user.setId(i);
+        user.setName("shiro" + i);
+        user.setPassword("somePass" + i);
+        user.setDescription("some awesome user" + i);
+        user.setRole(Role.ADMIN);
+        user = userRepository.save(user);
+        System.out.println(user);
+        Assertions.assertTrue(userRepository.existsById(user.getId()));
         userRepository.delete(user);
         Assertions.assertFalse(userRepository.existsById(user.getId()));
     }

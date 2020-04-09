@@ -1,18 +1,23 @@
 package com.softserveinc.webapp.model;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Objects;
 
-
+@Entity(name = "USERS")
 public class User {
-
-    @NotNull(message = "ID can't be empty")
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @NotBlank(message = "Name can't be empty")
     private String name;
-    @Size(min = 8,max = 64, message = "Password should be longer than 8 symbols")
+    @Size(min = 8, max = 64, message = "Password should be longer than 8 symbols")
+
     private String password;
     @NotBlank(message = "Description can't be empty")
     private String description;
@@ -32,6 +37,19 @@ public class User {
     }
 
     @Override
+
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", description='" + description + '\'' +
+                ", role=" + role +
+                '}';
+    }
+
+    @Override
+
     public int hashCode() {
         return Objects.hash(id);
     }

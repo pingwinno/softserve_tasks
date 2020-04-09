@@ -12,9 +12,10 @@ import java.util.Set;
 
 class UserValidationTest {
 
-    private static Set<ConstraintViolation<User>> violations;
-    private static ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    private static Validator validator = factory.getValidator();
+
+    private Set<ConstraintViolation<User>> violations;
+    private ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    private Validator validator = factory.getValidator();
     private User user;
 
     @BeforeEach

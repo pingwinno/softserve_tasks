@@ -1,8 +1,10 @@
 package com.softserveinc.webapp.controller;
 
-import com.softserveinc.webapp.model.Role;
+
 import com.softserveinc.webapp.exception.UserAlreadyExistsException;
 import com.softserveinc.webapp.exception.UserNotFoundException;
+import com.softserveinc.webapp.exception.WrongParamsException;
+import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
 import com.softserveinc.webapp.service.UserService;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,6 +44,7 @@ public class UserControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private UserService userService;
+
     private String userJson = "{\"id\":0,\"name\":\"user0\"" +
             ",\"password\":\"somePass0\"" +
             ",\"description\":\"some awesome user0\"" +
@@ -159,7 +162,7 @@ public class UserControllerTest {
     //Test update method with id mismatch in path and body request
     @Test
     public void shouldReturn400WhenCallPatchForUpdateWithIDsMismatch() throws Exception {
-        doThrow(IllegalArgumentException.class).when(userService).updateUser(1, user);
+        doThrow(WrongParamsException.class).when(userService).updateUser(1, user);
         this.mockMvc.perform(patch("/user/{id}", 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
@@ -172,7 +175,7 @@ public class UserControllerTest {
     //Test update method when user is not present
     @Test
     public void shouldReturn404WhenCallPatchForUpdateWithNonExistingUser() throws Exception {
-        doThrow(UserNotFoundException.class).when(userService).updateUser(0,user);
+        doThrow(UserNotFoundException.class).when(userService).updateUser(0, user);
         this.mockMvc.perform(patch("/user/{id}", 0)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
