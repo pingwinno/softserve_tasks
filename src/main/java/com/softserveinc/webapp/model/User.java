@@ -1,5 +1,7 @@
 package com.softserveinc.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -8,12 +10,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Objects;
+import java.util.UUID;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity(name = "USERS")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private UUID id;
     @NotBlank(message = "Name can't be empty")
     private String name;
     @Size(min = 8, max = 64, message = "Password should be longer than 8 symbols")
@@ -54,11 +58,11 @@ public class User {
         return Objects.hash(id);
     }
 
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

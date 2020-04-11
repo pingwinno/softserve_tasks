@@ -1,9 +1,9 @@
 package com.softserveinc.webapp.controller;
 
 
-import com.softserveinc.webapp.exception.UserAlreadyExistsException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softserveinc.webapp.exception.UserNotFoundException;
-import com.softserveinc.webapp.exception.WrongParamsException;
 import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
 import com.softserveinc.webapp.service.UserService;
@@ -22,6 +22,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.UUID;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -38,26 +40,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(RestDocumentationExtension.class)
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
-    private static User user = new User();
+    private static User userWithID = new User();
+    private static User userWithoutID = new User();
+    static private String userJsonWithID;
+    private static String userJsonWithoutID;
+
     private ConstraintDescriptions constraintDescriptions = new ConstraintDescriptions(User.class);
     @Autowired
     private MockMvc mockMvc;
     @MockBean
     private UserService userService;
 
-    private String userJson = "{\"id\":0,\"name\":\"user0\"" +
-            ",\"password\":\"somePass0\"" +
-            ",\"description\":\"some awesome user0\"" +
-            ",\"role\":\"ADMIN\"}";
-
     @BeforeAll
-    public static void init() {
-        int i = 0;
-        user.setId(i);
-        user.setName("user" + i);
-        user.setPassword("somePass" + i);
-        user.setDescription("some awesome user" + i);
-        user.setRole(Role.ADMIN);
+    public static void init() throws JsonProcessingException {
+        userWithoutID.setName("user");
+        userWithoutID.setPassword("somePass");
+        userWithoutID.setDescription("some user");
+        userWithoutID.setRole(Role.ADMIN);
+        userWithID.setName("user");
+        userWithID.setPassword("somePass");
+        userWithID.setDescription("some user");
+        userWithID.setRole(Role.ADMIN);
+        ObjectMapper objectMapper = new ObjectMapper();
+        userJsonWithoutID = objectMapper.writeValueAsString(userWithID);
+        userWithID.setId(UUID.randomUUID());
+        userJsonWithID = objectMapper.writeValueAsString(userWithID);
     }
 
     @BeforeEach
@@ -71,10 +78,9 @@ public class UserControllerTest {
     //Test get method
     @Test
     public void shouldReturnUserWhenCallGet() throws Exception {
-        when(userService.getUser(0)).thenReturn(user);
-        this.mockMvc.perform(get("/user/{id}", 0)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().string(containsString(
-                        userJson))).andDo(document("user/{methodName}"
+        when(userService.getUser(userWithID.getId())).thenReturn(userWithID);
+        this.mockMvc.perform(get("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().string(containsString(userJsonWithID))).andDo(document("user/{methodName}"
                 , pathParameters(parameterWithName("id").description("user id"))
                 , responseFields(
                         fieldWithPath("id").description("user id").attributes(key("constraints")
@@ -92,8 +98,9 @@ public class UserControllerTest {
     //Test get method with request non existing user
     @Test
     public void shouldReturn404WhenCallGet() throws Exception {
-        when(userService.getUser(1)).thenThrow(UserNotFoundException.class);
-        this.mockMvc.perform(get("/user/{id}", 1)).andDo(print()).andExpect(status().isNotFound())
+        UUID uuid = UUID.randomUUID();
+        when(userService.getUser(uuid)).thenThrow(UserNotFoundException.class);
+        this.mockMvc.perform(get("/user/{id}", uuid)).andDo(print()).andExpect(status().isNotFound())
                 .andDo(document("user/{methodName}"
                         , pathParameters(parameterWithName("id").description("user id"))));
     }
@@ -101,54 +108,49 @@ public class UserControllerTest {
     //Test add method
     @Test
     public void shouldReturn200WhenCallPostForAdd() throws Exception {
-        doNothing().when(userService).addUser(user);
+        when(userService.addUser(userWithoutID)).thenReturn(userWithID);
         this.mockMvc.perform(post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
-                .content(userJson))
+                .content(userJsonWithoutID))
                 .andDo(print())
-                .andExpect(status().isOk()).andDo(document("user/{methodName}"
-                , requestFields(
-                        fieldWithPath("id").description("user id").attributes(key("constraints")
-                                .value(constraintDescriptions.descriptionsForProperty("id")))
-                        , fieldWithPath("name").description("name").attributes(key("constraints")
-                                .value(constraintDescriptions.descriptionsForProperty("name")))
-                        , fieldWithPath("password").description("password").attributes(key("constraints")
-                                .value(constraintDescriptions.descriptionsForProperty("password")))
-                        , fieldWithPath("description").description("description").attributes(key("constraints")
-                                .value(constraintDescriptions.descriptionsForProperty("description")))
-                        , fieldWithPath("role").description("role").attributes(key("constraints")
-                                .value(constraintDescriptions.descriptionsForProperty("role"))))));
-        verify(userService, times(1)).addUser(user);
-    }
-
-    //Test add method with duplicated id
-    @Test
-    public void shouldReturn400WhenCallPostWithDuplicatedObjects() throws Exception {
-        doThrow(UserAlreadyExistsException.class).when(userService).addUser(user);
-        this.mockMvc.perform(post("/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF8")
-                .content(userJson))
-                .andDo(print())
-                .andExpect(status().isBadRequest()).andDo(document("user/{methodName}"));
+                .andExpect(status().isOk()).andExpect(content().string(containsString(userJsonWithID)))
+                .andDo(document("user/{methodName}"
+                        , relaxedRequestFields(subsectionWithPath("name").description("name").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("name")))
+                                , subsectionWithPath("password").description("password").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("password")))
+                                , subsectionWithPath("description").description("description").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("description")))
+                                , subsectionWithPath("role").description("role").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("role"))))
+                        , responseFields(
+                                fieldWithPath("id").description("user id").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("id")))
+                                , fieldWithPath("name").description("name").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("name")))
+                                , fieldWithPath("password").description("password").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("password")))
+                                , fieldWithPath("description").description("description").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("description")))
+                                , fieldWithPath("role").description("role").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("role"))))
+                ));
+        verify(userService, times(1)).addUser(userWithoutID);
     }
 
     //Test update method
     @Test
     public void shouldReturn200WhenCallPatchForUpdate() throws Exception {
-        doNothing().when(userService).updateUser(0, user);
-        this.mockMvc.perform(patch("/user/{id}", 0)
+        doNothing().when(userService).updateUser(userWithID.getId(), userWithID);
+        this.mockMvc.perform(patch("/user/{id}", userWithID.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
-                .content(userJson))
+                .content(userJsonWithID))
                 .andDo(print())
                 .andExpect(status().isOk()).andDo(document("user/{methodName}"
                 , pathParameters(parameterWithName("id").description("user id"))
-                , requestFields(
-                        fieldWithPath("id").description("user id").attributes(key("constraints")
-                                .value(constraintDescriptions.descriptionsForProperty("id")))
-                        , fieldWithPath("name").description("name").attributes(key("constraints")
+                , relaxedRequestFields(fieldWithPath("name").description("name").attributes(key("constraints")
                                 .value(constraintDescriptions.descriptionsForProperty("name")))
                         , fieldWithPath("password").description("password").attributes(key("constraints")
                                 .value(constraintDescriptions.descriptionsForProperty("password")))
@@ -156,30 +158,15 @@ public class UserControllerTest {
                                 .value(constraintDescriptions.descriptionsForProperty("description")))
                         , fieldWithPath("role").description("role").attributes(key("constraints")
                                 .value(constraintDescriptions.descriptionsForProperty("role"))))));
-        verify(userService, times(1)).updateUser(0, user);
-    }
-
-    //Test update method with id mismatch in path and body request
-    @Test
-    public void shouldReturn400WhenCallPatchForUpdateWithIDsMismatch() throws Exception {
-        doThrow(WrongParamsException.class).when(userService).updateUser(1, user);
-        this.mockMvc.perform(patch("/user/{id}", 1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF8")
-                .content(userJson))
-                .andDo(print())
-                .andExpect(status().isBadRequest()).andDo(document("user/{methodName}"
-                , pathParameters(parameterWithName("id").description("user id"))));
     }
 
     //Test update method when user is not present
     @Test
     public void shouldReturn404WhenCallPatchForUpdateWithNonExistingUser() throws Exception {
-        doThrow(UserNotFoundException.class).when(userService).updateUser(0, user);
-        this.mockMvc.perform(patch("/user/{id}", 0)
+        doThrow(new UserNotFoundException()).when(userService).updateUser(any(), any());
+        this.mockMvc.perform(patch("/user/{id}", userWithID.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF8")
-                .content(userJson))
+                .content(userJsonWithID))
                 .andDo(print())
                 .andExpect(status().isNotFound()).andDo(document("user/{methodName}"
                 , pathParameters(parameterWithName("id").description("user id"))));
@@ -188,8 +175,8 @@ public class UserControllerTest {
     //Test delete method
     @Test
     public void shouldReturn200WhenCallDelete() throws Exception {
-        doNothing().when(userService).deleteUser(0);
-        this.mockMvc.perform(delete("/user/{id}", 0)).andDo(print()).andExpect(status().isOk())
+        doNothing().when(userService).deleteUser(userWithID.getId());
+        this.mockMvc.perform(delete("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk())
                 .andDo(document("user/{methodName}"
                         , pathParameters(parameterWithName("id").description("user id"))));
     }
@@ -197,8 +184,9 @@ public class UserControllerTest {
     //Test delete method with request non existing user
     @Test
     public void shouldReturn404WhenCallDelete() throws Exception {
-        doThrow(UserNotFoundException.class).when(userService).deleteUser(1);
-        this.mockMvc.perform(delete("/user/{id}", 1)).andDo(print()).andExpect(status().isNotFound())
+        UUID uuid = UUID.randomUUID();
+        doThrow(UserNotFoundException.class).when(userService).deleteUser(uuid);
+        this.mockMvc.perform(delete("/user/{id}", uuid)).andDo(print()).andExpect(status().isNotFound())
                 .andDo(document("user/{methodName}"
                         , pathParameters(parameterWithName("id").description("user id"))));
     }

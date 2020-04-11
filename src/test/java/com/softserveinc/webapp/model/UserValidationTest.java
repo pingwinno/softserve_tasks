@@ -9,6 +9,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.Set;
+import java.util.UUID;
 
 class UserValidationTest {
 
@@ -21,11 +22,11 @@ class UserValidationTest {
     @BeforeEach
     void init() {
         user = new User();
-        long i = 0;
-        user.setId(i);
-        user.setName("name" + i);
-        user.setPassword("somePass" + i);
-        user.setDescription("some awesome user" + i);
+        UUID uuid = UUID.randomUUID();
+        user.setId(uuid);
+        user.setName("name" + uuid);
+        user.setPassword("somePass" + uuid);
+        user.setDescription("some awesome user" + uuid);
         user.setRole(Role.ADMIN);
     }
 

@@ -11,6 +11,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @DataJpaTest
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
@@ -53,12 +54,12 @@ class UserRepositoryTest {
     //Should successfully save new user
     @Test
     void shouldNotThrowWhenSaveRecord() {
-        int i = 30;
+        UUID uuid = UUID.randomUUID();
         User user = new User();
-        user.setId(i);
-        user.setName("shiro" + i);
-        user.setPassword("somePass" + i);
-        user.setDescription("some awesome user" + i);
+        user.setId(uuid);
+        user.setName("shiro" + uuid);
+        user.setPassword("somePass" + uuid);
+        user.setDescription("some awesome user" + uuid);
         user.setRole(Role.ADMIN);
         Assertions.assertDoesNotThrow(() -> userRepository.save(user));
     }
@@ -78,12 +79,12 @@ class UserRepositoryTest {
     //Should successfully delete user and existsById should return false
     @Test
     void shouldReturnFalseWhenDeleteRecord() {
-        int i = 40;
+        UUID uuid = UUID.randomUUID();
         User user = new User();
-        user.setId(i);
-        user.setName("shiro" + i);
-        user.setPassword("somePass" + i);
-        user.setDescription("some awesome user" + i);
+        user.setId(uuid);
+        user.setName("shiro" + uuid);
+        user.setPassword("somePass" + uuid);
+        user.setDescription("some awesome user" + uuid);
         user.setRole(Role.ADMIN);
         user = userRepository.save(user);
         System.out.println(user);
@@ -96,7 +97,7 @@ class UserRepositoryTest {
         List<User> users = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             User user = new User();
-            user.setId(i);
+            user.setId(UUID.randomUUID());
             user.setName("shiro" + i);
             user.setPassword("somePass" + i);
             user.setDescription("some awesome user" + i);
