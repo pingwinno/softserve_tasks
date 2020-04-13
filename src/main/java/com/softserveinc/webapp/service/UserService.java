@@ -15,5 +15,4 @@ public interface UserService {
     void updateUser(UUID id, User user) throws UserNotFoundException, WrongParamsException;
 
     void deleteUser(UUID id) throws UserNotFoundException;
-
 }

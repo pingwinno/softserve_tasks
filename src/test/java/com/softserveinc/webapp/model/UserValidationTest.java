@@ -2,6 +2,7 @@ package com.softserveinc.webapp.model;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolation;
@@ -30,8 +31,8 @@ class UserValidationTest {
         user.setRole(Role.ADMIN);
     }
 
-    //Test name field validation
     @Test
+    @DisplayName("Test name field validation")
     void shouldReturnNameViolationWhenNameEmpty() {
         user.setName("");
         violations = validator.validate(user);
@@ -42,8 +43,8 @@ class UserValidationTest {
                                 "name", userConstraintViolation.getPropertyPath().toString()));
     }
 
-    //Test password field validation
     @Test
+    @DisplayName("Test password field validation")
     void shouldReturnPasswordViolationWhenPasswordShorterThan8Symbols() {
         user.setPassword("12345");
         violations = validator.validate(user);
@@ -54,8 +55,8 @@ class UserValidationTest {
                                 "password", userConstraintViolation.getPropertyPath().toString()));
     }
 
-    //Test description field validation
     @Test
+    @DisplayName("Test description field validation")
     void shouldReturnDescriptionViolationWhenDescriptionIsBlank() {
         user.setDescription("   ");
         violations = validator.validate(user);
@@ -66,8 +67,8 @@ class UserValidationTest {
                                 "description", userConstraintViolation.getPropertyPath().toString()));
     }
 
-    //Test description field validation
     @Test
+    @DisplayName("Test description field validation")
     void shouldReturnRoleViolationWhenRoleIsNull() {
         user.setRole(null);
         violations = validator.validate(user);

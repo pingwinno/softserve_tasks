@@ -37,5 +37,4 @@ public class UserController {
     public void deleteUser(@PathVariable UUID id) throws UserNotFoundException {
         userService.deleteUser(id);
     }
-
 }

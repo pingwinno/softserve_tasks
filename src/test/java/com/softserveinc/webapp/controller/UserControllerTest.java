@@ -9,6 +9,7 @@ import com.softserveinc.webapp.model.User;
 import com.softserveinc.webapp.service.UserService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,8 +76,8 @@ public class UserControllerTest {
                 .build();
     }
 
-    //Test get method
     @Test
+    @DisplayName("Test get method")
     public void shouldReturnUserWhenCallGet() throws Exception {
         when(userService.getUser(userWithID.getId())).thenReturn(userWithID);
         this.mockMvc.perform(get("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk())
@@ -95,8 +96,8 @@ public class UserControllerTest {
                                 .value(constraintDescriptions.descriptionsForProperty("role"))))));
     }
 
-    //Test get method with request non existing user
     @Test
+    @DisplayName("Test get method with request non existing user")
     public void shouldReturn404WhenCallGet() throws Exception {
         UUID uuid = UUID.randomUUID();
         when(userService.getUser(uuid)).thenThrow(UserNotFoundException.class);
@@ -105,8 +106,8 @@ public class UserControllerTest {
                         , pathParameters(parameterWithName("id").description("user id"))));
     }
 
-    //Test add method
     @Test
+    @DisplayName("Test add method")
     public void shouldReturn200WhenCallPostForAdd() throws Exception {
         when(userService.addUser(userWithoutID)).thenReturn(userWithID);
         this.mockMvc.perform(post("/user")
@@ -139,8 +140,8 @@ public class UserControllerTest {
         verify(userService, times(1)).addUser(userWithoutID);
     }
 
-    //Test update method
     @Test
+    @DisplayName("Test update method")
     public void shouldReturn200WhenCallPatchForUpdate() throws Exception {
         doNothing().when(userService).updateUser(userWithID.getId(), userWithID);
         this.mockMvc.perform(patch("/user/{id}", userWithID.getId())
@@ -160,8 +161,8 @@ public class UserControllerTest {
                                 .value(constraintDescriptions.descriptionsForProperty("role"))))));
     }
 
-    //Test update method when user is not present
     @Test
+    @DisplayName("Test update method when user is not present")
     public void shouldReturn404WhenCallPatchForUpdateWithNonExistingUser() throws Exception {
         doThrow(new UserNotFoundException()).when(userService).updateUser(any(), any());
         this.mockMvc.perform(patch("/user/{id}", userWithID.getId())
@@ -172,8 +173,8 @@ public class UserControllerTest {
                 , pathParameters(parameterWithName("id").description("user id"))));
     }
 
-    //Test delete method
     @Test
+    @DisplayName("Test delete method")
     public void shouldReturn200WhenCallDelete() throws Exception {
         doNothing().when(userService).deleteUser(userWithID.getId());
         this.mockMvc.perform(delete("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk())
@@ -181,8 +182,9 @@ public class UserControllerTest {
                         , pathParameters(parameterWithName("id").description("user id"))));
     }
 
-    //Test delete method with request non existing user
+
     @Test
+    @DisplayName("Test delete method with request non existing user")
     public void shouldReturn404WhenCallDelete() throws Exception {
         UUID uuid = UUID.randomUUID();
         doThrow(UserNotFoundException.class).when(userService).deleteUser(uuid);
@@ -190,6 +192,4 @@ public class UserControllerTest {
                 .andDo(document("user/{methodName}"
                         , pathParameters(parameterWithName("id").description("user id"))));
     }
-
-
 }

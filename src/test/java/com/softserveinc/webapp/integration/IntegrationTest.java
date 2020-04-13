@@ -6,6 +6,7 @@ import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
 import com.softserveinc.webapp.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -54,22 +55,22 @@ public class IntegrationTest {
     }
 
 
-    //Test get method
     @Test
+    @DisplayName("Test get method")
     public void shouldReturnUserWhenCallGet() throws Exception {
         this.mockMvc.perform(get("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().string(containsString(userJsonWithID)));
     }
 
-    //Test get method with request non existing user
     @Test
+    @DisplayName("Test get method with request non existing user")
     public void shouldReturn404WhenCallGet() throws Exception {
         UUID uuid = UUID.randomUUID();
         this.mockMvc.perform(get("/user/{id}", uuid)).andDo(print()).andExpect(status().isNotFound());
     }
 
-    //Test add method
     @Test
+    @DisplayName("Test add method")
     public void shouldReturn200WhenCallPostForAdd() throws Exception {
         this.mockMvc.perform(post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -79,9 +80,8 @@ public class IntegrationTest {
                 .andExpect(status().isOk());
     }
 
-
-    //Test update method
     @Test
+    @DisplayName("Test update method")
     public void shouldReturn200WhenCallPatchForUpdate() throws Exception {
         this.mockMvc.perform(patch("/user/{id}", userWithID.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -92,6 +92,7 @@ public class IntegrationTest {
     }
 
     @Test
+    @DisplayName("Test patch method with non existing user")
     public void shouldReturn404WhenCallPatchForUpdateWithNonExistingUser() throws Exception {
         this.mockMvc.perform(patch("/user/{id}", UUID.randomUUID())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,14 +102,14 @@ public class IntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    //Test delete method
     @Test
+    @DisplayName("Test delete method")
     public void shouldReturn200WhenCallDelete() throws Exception {
         this.mockMvc.perform(delete("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk());
     }
 
-    //Test delete method with request non existing user
     @Test
+    @DisplayName("Test delete method with request non existing user")
     public void shouldReturn404WhenCallDelete() throws Exception {
         this.mockMvc.perform(delete("/user/{id}", UUID.randomUUID()))
                 .andDo(print()).andExpect(status().isNotFound());

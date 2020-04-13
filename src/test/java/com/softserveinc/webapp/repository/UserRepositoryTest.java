@@ -4,6 +4,7 @@ import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -28,31 +29,31 @@ class UserRepositoryTest {
         userRepository.saveAll(generateData()).forEach(users::add);
     }
 
-    //Should find user with id 0
     @Test
+    @DisplayName("Should find user with given id")
     void shouldBeEqualsWhenCallFindUserById() {
         User user = users.get(0);
         Assertions.assertEquals(user, userRepository.findById(user.getId()).orElseThrow());
     }
 
-    //Test findAll method and compare result with generated set
     @Test
+    @DisplayName("Test findAll method and compare result with generated set")
     void shouldBeEqualsWhenCallFindAll() {
         List<User> usersCallResult = new ArrayList<>();
         userRepository.findAll().forEach(usersCallResult::add);
         Assertions.assertTrue(usersCallResult.containsAll(users));
     }
 
-    //Test saveAll method and try to find each added element
     @Test
+    @DisplayName("Test saveAll method and try to find each added element")
     void shouldBeEqualsWhenSaveAll() {
         for (User user : users) {
             Assertions.assertEquals(user, userRepository.findById(user.getId()).orElse(null));
         }
     }
 
-    //Should successfully save new user
     @Test
+    @DisplayName("Should successfully save new user")
     void shouldNotThrowWhenSaveRecord() {
         UUID uuid = UUID.randomUUID();
         User user = new User();
@@ -64,8 +65,8 @@ class UserRepositoryTest {
         Assertions.assertDoesNotThrow(() -> userRepository.save(user));
     }
 
-    //Should successfully update old user
     @Test
+    @DisplayName("Should successfully update old user")
     void shouldReturnNewValueWhenUpdateRecord() {
         User user = users.get(0);
         int i = 100;
@@ -76,8 +77,8 @@ class UserRepositoryTest {
         Assertions.assertEquals(user, userRepository.findById(user.getId()).orElseThrow());
     }
 
-    //Should successfully delete user and existsById should return false
     @Test
+    @DisplayName("Should successfully delete user and existsById should return false")
     void shouldReturnFalseWhenDeleteRecord() {
         UUID uuid = UUID.randomUUID();
         User user = new User();

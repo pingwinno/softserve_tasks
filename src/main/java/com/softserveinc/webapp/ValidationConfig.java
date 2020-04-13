@@ -17,6 +17,4 @@ public class ValidationConfig {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         return factory.getValidator();
     }
-
-
 }
