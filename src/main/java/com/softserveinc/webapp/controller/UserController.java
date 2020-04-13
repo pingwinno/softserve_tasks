@@ -1,6 +1,5 @@
 package com.softserveinc.webapp.controller;
 
-import com.softserveinc.webapp.exception.UserAlreadyExistsException;
 import com.softserveinc.webapp.exception.UserNotFoundException;
 import com.softserveinc.webapp.exception.WrongParamsException;
 import com.softserveinc.webapp.model.User;
