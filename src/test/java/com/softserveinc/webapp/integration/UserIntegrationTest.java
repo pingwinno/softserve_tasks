@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
 import com.softserveinc.webapp.repository.UserRepository;
+import com.softserveinc.webapp.utils.PhoneNumberGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -29,10 +31,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+public class UserIntegrationTest {
 
-public class IntegrationTest {
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     private User userWithID = new User();
     private User userWithoutID = new User();
     private String userJsonWithID;
@@ -41,14 +43,17 @@ public class IntegrationTest {
 
     @BeforeEach
     public void init() throws JsonProcessingException {
+        long phoneNumber = PhoneNumberGenerator.generate();
         userWithoutID.setName("user");
         userWithoutID.setPassword("somePass");
         userWithoutID.setDescription("some user");
         userWithoutID.setRole(Role.ADMIN);
+        userWithoutID.setPhoneNumber(phoneNumber);
         userWithID.setName("user");
         userWithID.setPassword("somePass");
         userWithID.setDescription("some user");
         userWithID.setRole(Role.ADMIN);
+        userWithID.setPhoneNumber(phoneNumber);
         ObjectMapper objectMapper = new ObjectMapper();
         userWithID = userRepository.save(userWithoutID);
         userJsonWithID = objectMapper.writeValueAsString(userWithID);
@@ -59,6 +64,15 @@ public class IntegrationTest {
     @DisplayName("Test get method")
     public void shouldReturnUserWhenCallGet() throws Exception {
         this.mockMvc.perform(get("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().string(containsString(userJsonWithID)));
+    }
+
+    @Test
+    @DisplayName("Test search by name")
+    public void shouldReturnUserWhenCallGetByName() throws Exception {
+        this.mockMvc.perform(get("/user/search?{field}={value}", "name", userWithID.getName()))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().string(containsString(userJsonWithID)));
     }
 

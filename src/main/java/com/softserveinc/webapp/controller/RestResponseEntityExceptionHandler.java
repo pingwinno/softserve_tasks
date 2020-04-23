@@ -1,6 +1,6 @@
 package com.softserveinc.webapp.controller;
 
-import com.softserveinc.webapp.exception.UserNotFoundException;
+import com.softserveinc.webapp.exception.NotFoundException;
 import com.softserveinc.webapp.exception.WrongParamsException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ public class RestResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(value
-            = {UserNotFoundException.class})
+            = {NotFoundException.class})
     protected ResponseEntity<Object> handleNotFound(
             Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(),

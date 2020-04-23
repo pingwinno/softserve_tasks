@@ -1,6 +1,5 @@
 package com.softserveinc.webapp.model;
 
-import com.softserveinc.webapp.utils.PhoneNumberGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,33 +9,32 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
-class UserValidationTest {
+class ItemValidationTest {
 
-    private Set<ConstraintViolation<User>> violations;
+    private Set<ConstraintViolation<Item>> violations;
     private ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     private Validator validator = factory.getValidator();
-    private User user;
+    private Item item = new Item();
 
     @BeforeEach
     void init() {
-        user = new User();
         UUID uuid = UUID.randomUUID();
-        user.setId(uuid);
-        user.setName("name" + uuid);
-        user.setPassword("somePass" + uuid);
-        user.setDescription("some awesome user" + uuid);
-        user.setPhoneNumber(PhoneNumberGenerator.generate());
-        user.setRole(Role.ADMIN);
+        item.setId(uuid);
+        item.setName("item");
+        item.setPrice(BigDecimal.TEN);
+        item.setDescription("some awesome item" + uuid);
+        item.setCategory("category");
     }
 
     @Test
     @DisplayName("Test name field validation")
     void shouldReturnNameViolationWhenNameEmpty() {
-        user.setName("");
-        violations = validator.validate(user);
+        item.setName("");
+        violations = validator.validate(item);
         violations
                 .forEach(
                         userConstraintViolation
@@ -45,38 +43,26 @@ class UserValidationTest {
     }
 
     @Test
-    @DisplayName("Test password field validation")
+    @DisplayName("Test price field validation")
     void shouldReturnPasswordViolationWhenPasswordShorterThan8Symbols() {
-        user.setPassword("12345");
-        violations = validator.validate(user);
+        item.setPrice(null);
+        violations = validator.validate(item);
         violations
                 .forEach(
                         userConstraintViolation
                                 -> Assertions.assertEquals(
-                                "password", userConstraintViolation.getPropertyPath().toString()));
+                                "price", userConstraintViolation.getPropertyPath().toString()));
     }
 
     @Test
-    @DisplayName("Test description field validation")
+    @DisplayName("Test category field validation")
     void shouldReturnDescriptionViolationWhenDescriptionIsBlank() {
-        user.setDescription("   ");
-        violations = validator.validate(user);
+        item.setCategory("   ");
+        violations = validator.validate(item);
         violations
                 .forEach(
                         userConstraintViolation
                                 -> Assertions.assertEquals(
-                                "description", userConstraintViolation.getPropertyPath().toString()));
-    }
-
-    @Test
-    @DisplayName("Test description field validation")
-    void shouldReturnRoleViolationWhenRoleIsNull() {
-        user.setRole(null);
-        violations = validator.validate(user);
-        violations
-                .forEach(
-                        userConstraintViolation
-                                -> Assertions.assertEquals(
-                                "role", userConstraintViolation.getPropertyPath().toString()));
+                                "category", userConstraintViolation.getPropertyPath().toString()));
     }
 }

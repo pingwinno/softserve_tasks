@@ -3,10 +3,11 @@ package com.softserveinc.webapp.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.softserveinc.webapp.exception.UserNotFoundException;
+import com.softserveinc.webapp.exception.NotFoundException;
+import com.softserveinc.webapp.exception.WrongParamsException;
 import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
-import com.softserveinc.webapp.service.UserService;
+import com.softserveinc.webapp.service.interfaces.UserService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
@@ -31,8 +34,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -41,10 +43,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(RestDocumentationExtension.class)
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
+
     private static User userWithID = new User();
     private static User userWithoutID = new User();
     static private String userJsonWithID;
     private static String userJsonWithoutID;
+    private static final String ROLE_CONSTRAIN = "Enum: ADMIN, MODERATOR, USER";
 
     private ConstraintDescriptions constraintDescriptions = new ConstraintDescriptions(User.class);
     @Autowired
@@ -63,7 +67,7 @@ public class UserControllerTest {
         userWithID.setDescription("some user");
         userWithID.setRole(Role.ADMIN);
         ObjectMapper objectMapper = new ObjectMapper();
-        userJsonWithoutID = objectMapper.writeValueAsString(userWithID);
+        userJsonWithoutID = objectMapper.writeValueAsString(userWithoutID);
         userWithID.setId(UUID.randomUUID());
         userJsonWithID = objectMapper.writeValueAsString(userWithID);
     }
@@ -79,7 +83,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test get method")
     public void shouldReturnUserWhenCallGet() throws Exception {
-        when(userService.getUser(userWithID.getId())).thenReturn(userWithID);
+        when(userService.get(userWithID.getId())).thenReturn(userWithID);
         this.mockMvc.perform(get("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().string(containsString(userJsonWithID))).andDo(document("user/{methodName}"
                 , pathParameters(parameterWithName("id").description("user id"))
@@ -90,17 +94,100 @@ public class UserControllerTest {
                                 .value(constraintDescriptions.descriptionsForProperty("name")))
                         , fieldWithPath("password").description("password").attributes(key("constraints")
                                 .value(constraintDescriptions.descriptionsForProperty("password")))
+                        , fieldWithPath("phoneNumber").description("phone number").attributes(key("constraints")
+                                .value(constraintDescriptions.descriptionsForProperty("phoneNumber")))
                         , fieldWithPath("description").description("description").attributes(key("constraints")
                                 .value(constraintDescriptions.descriptionsForProperty("description")))
                         , fieldWithPath("role").description("role").attributes(key("constraints")
-                                .value(constraintDescriptions.descriptionsForProperty("role"))))));
+                                .value(ROLE_CONSTRAIN)))));
+    }
+
+    @Test
+    @DisplayName("Test getAll method")
+    public void shouldReturnUserWhenCallGetAll() throws Exception {
+        doReturn(List.of(userWithID)).when(userService).getAll();
+        this.mockMvc.perform(get("/user")).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().string(containsString(userJsonWithID))).andDo(document("user/{methodName}"
+                , responseFields(
+                        fieldWithPath("[].id").description("user id").attributes(key("constraints")
+                                .value(constraintDescriptions.descriptionsForProperty("id")))
+                        , fieldWithPath("[].name").description("name").attributes(key("constraints")
+                                .value(constraintDescriptions.descriptionsForProperty("name")))
+                        , fieldWithPath("[].password").description("password").attributes(key("constraints")
+                                .value(constraintDescriptions.descriptionsForProperty("password")))
+                        , fieldWithPath("[].phoneNumber").description("phone number").attributes(key("constraints")
+                                .value(constraintDescriptions.descriptionsForProperty("phoneNumber")))
+                        , fieldWithPath("[].description").description("description").attributes(key("constraints")
+                                .value(constraintDescriptions.descriptionsForProperty("description")))
+                        , fieldWithPath("[].role").description("role").attributes(key("constraints")
+                                .value(ROLE_CONSTRAIN)))));
+    }
+
+    @Test
+    @DisplayName("Test search by name")
+    public void shouldReturnUserWhenCallGetByName() throws Exception {
+        when(userService.getBy(Collections.singletonMap("name", userWithID.getName()))).thenReturn(Collections.singletonList(userWithID));
+        this.mockMvc.perform(get("/user/search?{field}={value}", "name", userWithID.getName()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(userJsonWithID)))
+                .andDo(document("user/{methodName}"
+                        , requestParameters(parameterWithName("name").description("search user by user name"))
+                        , responseFields(
+                                fieldWithPath("[].id").description("user id").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("id")))
+                                , fieldWithPath("[].name").description("name").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("name")))
+                                , fieldWithPath("[].password").description("password").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("password")))
+                                , fieldWithPath("[].phoneNumber").description("phone number").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("phoneNumber")))
+                                , fieldWithPath("[].description").description("description").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("description")))
+                                , fieldWithPath("[].role").description("role").attributes(key("constraints")
+                                        .value(ROLE_CONSTRAIN)))));
+    }
+
+    @Test
+    @DisplayName("Test search by phone number")
+    public void shouldReturnUserWhenCallGetByPhoneNumber() throws Exception {
+        when(userService.getBy(Collections.singletonMap("phone", String.valueOf(userWithID.getPhoneNumber()))))
+                .thenReturn(Collections.singletonList(userWithID));
+        this.mockMvc.perform(get("/user/search?{field}={value}", "phone", userWithID.getPhoneNumber()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(userJsonWithID)))
+                .andDo(document("user/{methodName}"
+                        , requestParameters(parameterWithName("phone").description("search user by phone number"))
+                        , responseFields(
+                                fieldWithPath("[].id").description("user id").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("id")))
+                                , fieldWithPath("[].name").description("name").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("name")))
+                                , fieldWithPath("[].password").description("password").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("password")))
+                                , fieldWithPath("[].phoneNumber").description("phone number").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("phoneNumber")))
+                                , fieldWithPath("[].description").description("description").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("description")))
+                                , fieldWithPath("[].role").description("role").attributes(key("constraints")
+                                        .value(ROLE_CONSTRAIN)))));
+    }
+
+    @Test
+    @DisplayName("Test search with wrong key")
+    public void shouldReturn400WhenSearchWithWrongKey() throws Exception {
+        doThrow(WrongParamsException.class).when(userService).getBy(Collections.singletonMap("some", "value"));
+        this.mockMvc.perform(get("/user/search?{field}={value}", "some", "value"))
+                .andExpect(status().isBadRequest())
+                .andDo(document("user/{methodName}"));
     }
 
     @Test
     @DisplayName("Test get method with request non existing user")
     public void shouldReturn404WhenCallGet() throws Exception {
         UUID uuid = UUID.randomUUID();
-        when(userService.getUser(uuid)).thenThrow(UserNotFoundException.class);
+        when(userService.get(uuid)).thenThrow(NotFoundException.class);
         this.mockMvc.perform(get("/user/{id}", uuid)).andDo(print()).andExpect(status().isNotFound())
                 .andDo(document("user/{methodName}"
                         , pathParameters(parameterWithName("id").description("user id"))));
@@ -109,7 +196,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test add method")
     public void shouldReturn200WhenCallPostForAdd() throws Exception {
-        when(userService.addUser(userWithoutID)).thenReturn(userWithID);
+        when(userService.add(userWithoutID)).thenReturn(userWithID);
         this.mockMvc.perform(post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
@@ -121,10 +208,12 @@ public class UserControllerTest {
                                         .value(constraintDescriptions.descriptionsForProperty("name")))
                                 , subsectionWithPath("password").description("password").attributes(key("constraints")
                                         .value(constraintDescriptions.descriptionsForProperty("password")))
+                                , fieldWithPath("phoneNumber").description("phone number").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("phoneNumber")))
                                 , subsectionWithPath("description").description("description").attributes(key("constraints")
                                         .value(constraintDescriptions.descriptionsForProperty("description")))
                                 , subsectionWithPath("role").description("role").attributes(key("constraints")
-                                        .value(constraintDescriptions.descriptionsForProperty("role"))))
+                                        .value(ROLE_CONSTRAIN)))
                         , responseFields(
                                 fieldWithPath("id").description("user id").attributes(key("constraints")
                                         .value(constraintDescriptions.descriptionsForProperty("id")))
@@ -132,18 +221,19 @@ public class UserControllerTest {
                                         .value(constraintDescriptions.descriptionsForProperty("name")))
                                 , fieldWithPath("password").description("password").attributes(key("constraints")
                                         .value(constraintDescriptions.descriptionsForProperty("password")))
+                                , fieldWithPath("phoneNumber").description("phone number").attributes(key("constraints")
+                                        .value(constraintDescriptions.descriptionsForProperty("phoneNumber")))
                                 , fieldWithPath("description").description("description").attributes(key("constraints")
                                         .value(constraintDescriptions.descriptionsForProperty("description")))
                                 , fieldWithPath("role").description("role").attributes(key("constraints")
-                                        .value(constraintDescriptions.descriptionsForProperty("role"))))
-                ));
-        verify(userService, times(1)).addUser(userWithoutID);
+                                        .value(ROLE_CONSTRAIN)))));
+        verify(userService, times(1)).add(userWithoutID);
     }
 
     @Test
     @DisplayName("Test update method")
     public void shouldReturn200WhenCallPatchForUpdate() throws Exception {
-        doNothing().when(userService).updateUser(userWithID.getId(), userWithID);
+        doNothing().when(userService).update(userWithID.getId(), userWithID);
         this.mockMvc.perform(patch("/user/{id}", userWithID.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
@@ -155,18 +245,21 @@ public class UserControllerTest {
                                 .value(constraintDescriptions.descriptionsForProperty("name")))
                         , fieldWithPath("password").description("password").attributes(key("constraints")
                                 .value(constraintDescriptions.descriptionsForProperty("password")))
+                        , fieldWithPath("phoneNumber").description("phone number").attributes(key("constraints")
+                                .value(constraintDescriptions.descriptionsForProperty("phoneNumber")))
                         , fieldWithPath("description").description("description").attributes(key("constraints")
                                 .value(constraintDescriptions.descriptionsForProperty("description")))
                         , fieldWithPath("role").description("role").attributes(key("constraints")
-                                .value(constraintDescriptions.descriptionsForProperty("role"))))));
+                                .value(ROLE_CONSTRAIN)))));
     }
 
     @Test
     @DisplayName("Test update method when user is not present")
     public void shouldReturn404WhenCallPatchForUpdateWithNonExistingUser() throws Exception {
-        doThrow(new UserNotFoundException()).when(userService).updateUser(any(), any());
+        doThrow(new NotFoundException()).when(userService).update(userWithID.getId(), userWithID);
         this.mockMvc.perform(patch("/user/{id}", userWithID.getId())
                 .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF8")
                 .content(userJsonWithID))
                 .andDo(print())
                 .andExpect(status().isNotFound()).andDo(document("user/{methodName}"
@@ -176,7 +269,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test delete method")
     public void shouldReturn200WhenCallDelete() throws Exception {
-        doNothing().when(userService).deleteUser(userWithID.getId());
+        doNothing().when(userService).delete(userWithID.getId());
         this.mockMvc.perform(delete("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk())
                 .andDo(document("user/{methodName}"
                         , pathParameters(parameterWithName("id").description("user id"))));
@@ -187,7 +280,7 @@ public class UserControllerTest {
     @DisplayName("Test delete method with request non existing user")
     public void shouldReturn404WhenCallDelete() throws Exception {
         UUID uuid = UUID.randomUUID();
-        doThrow(UserNotFoundException.class).when(userService).deleteUser(uuid);
+        doThrow(NotFoundException.class).when(userService).delete(uuid);
         this.mockMvc.perform(delete("/user/{id}", uuid)).andDo(print()).andExpect(status().isNotFound())
                 .andDo(document("user/{methodName}"
                         , pathParameters(parameterWithName("id").description("user id"))));

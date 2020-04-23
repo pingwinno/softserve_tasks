@@ -1,6 +1,6 @@
 package com.softserveinc.webapp.exception;
 
-public class WrongParamsException extends Exception {
+public class WrongParamsException extends RuntimeException {
     public WrongParamsException() {
     }
 

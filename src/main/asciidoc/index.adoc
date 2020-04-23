@@ -3,7 +3,7 @@
 :icons: font
 :source-highlighter: highlightjs
 :toc: left
-:toclevels: 4
+:toclevels: 5
 :sectlinks:
 :operation-curl-request-title: Example request
 :operation-http-response-title: Example response
@@ -11,65 +11,419 @@
 [[overview]]
 = Overview
 
-You can use this API to operate users database.
+You can use this API to operate shop database.
 
-[[overview-get]]
-== GET
+[[overview-user-api]]
+== User API
 
-With this method you can get user info by id.
+[[overview-get-user]]
+=== GET
 
-[[overview-get-success]]
-=== Success
+This method returns user by id.
+
+[[overview-get-user-success]]
+==== Success
 
 operation::user/shouldReturnUserWhenCallGet[]
 
-[[overview-get-failed]]
-=== Failed
+[[overview-get-user-failed]]
+==== Failed
 
 operation::user/shouldReturn404WhenCallGet[snippets='http-response']
 
-[[overview-post]]
-== POST
+This method return all users.
 
-With this method you can get user info by id.
+[[overview-getall-user-success]]
+==== Success
 
-[[overview-post-success]]
-=== Success
+operation::user/shouldReturnUserWhenCallGetAll[]
+
+
+[[overview-search-user]]
+=== SEARCH
+
+This method search a user by phone number.
+
+[[overview-get-search-user-by-number-success]]
+==== Success
+
+operation::user/shouldReturnUserWhenCallGetByPhoneNumber[]
+
+This method search a user by name.
+
+[[overview-get-search-user-by-name-success]]
+==== Success
+
+operation::user/shouldReturnUserWhenCallGetByName[]
+
+[[overview-get-search-user-failed]]
+==== Failed
+
+operation::user/shouldReturn400WhenSearchWithWrongKey[snippets='http-response']
+
+
+[[overview-post-user]]
+=== POST
+
+This method adds a user.
+
+[[overview-post-user-success]]
+==== Success
 
 operation::user/shouldReturn200WhenCallPostForAdd[]
 
-[[overview-post-failed]]
-=== Failed
 
-operation::user/shouldReturn400WhenCallPostWithDuplicatedObjects[snippets='http-response']
+[[overview-put-user]]
+=== PUT
 
-[[overview-put]]
-== put
+This method updates a user.
 
-With this method you can get user info by id.
-
-[[overview-put-success]]
-=== Success
+[[overview-put-user-success]]
+==== Success
 
 operation::user/shouldReturn200WhenCallPatchForUpdate[]
 
-[[overview-put-failed]]
-=== Failed
+[[overview-put-user-failed]]
+==== Failed
 
-operation::user/shouldReturn400WhenCallPatchForUpdateWithIDsMismatch[snippets='http-response']
 operation::user/shouldReturn404WhenCallPatchForUpdateWithNonExistingUser[snippets='http-response']
 
-[[overview-delete]]
-== GET
 
-With this method you can get user info by id.
+[[overview-delete-user]]
+=== DELETE
 
-[[overview-delete-success]]
-=== Success
+This method delete a user by id.
+
+[[overview-delete-user-success]]
+==== Success
 
 operation::user/shouldReturn200WhenCallDelete[]
 
-[[overview-delete-failed]]
-=== Failed
+[[overview-delete-user-failed]]
+==== Failed
 
 operation::user/shouldReturn404WhenCallDelete[snippets='http-response']
+
+[[overview-item-api]]
+== Item API
+
+[[overview-get-item]]
+=== GET
+
+This method returns an item by id.
+
+[[overview-get-item-success]]
+==== Success
+
+operation::item/shouldReturnItemWhenCallGet[]
+
+[[overview-get-item-failed]]
+==== Failed
+
+operation::item/shouldReturn404WhenCallGet[snippets='http-response']
+
+This method return all items.
+
+[[overview-getall-item-success]]
+==== Success
+
+operation::item/shouldReturnItemWhenCallGetAll[]
+
+[[overview-search-item]]
+=== SEARCH
+
+[[overview-get-search-item-by-name-success]]
+==== Success
+
+This method search items by name.
+
+operation::item/shouldReturnItemWhenCallSearchByName[]
+
+[[overview-get-search-item-by-category-success]]
+==== Success
+
+This method search items by category.
+
+operation::item/shouldReturnItemWhenCallSearchByCategory[]
+
+[[overview-get-search-item-by-name-and-category-success]]
+==== Success
+
+operation::item/shouldReturnItemWhenCallSearchByNameAndCategory[]
+
+
+[[overview-get-search-item-failed]]
+==== Failed
+
+operation::item/shouldReturn400WhenSearchWithWrongKey[snippets='http-response']
+
+
+[[overview-post-item]]
+=== POST
+
+This method adds an item.
+
+[[overview-post-item-success]]
+==== Success
+
+operation::item/shouldReturn200WhenCallPostForAdd[]
+
+
+[[overview-put-item]]
+=== PUT
+
+This method updates an item.
+
+[[overview-put-item-success]]
+==== Success
+
+operation::item/shouldReturn200WhenCallPatchForUpdate[]
+
+[[overview-put-item-failed]]
+==== Failed
+
+operation::item/shouldReturn404WhenCallPatchForUpdateWithNonExistingItem[snippets='http-response']
+
+
+[[overview-delete-item]]
+=== DELETE
+
+This method delete an item by id.
+
+[[overview-delete-item-success]]
+==== Success
+
+operation::item/shouldReturn200WhenCallDelete[]
+
+[[overview-delete-item-failed]]
+==== Failed
+
+operation::item/shouldReturn404WhenCallDelete[snippets='http-response']
+
+[[overview-registered-order-api]]
+== Registered order API
+
+[[overview-get-registered-order]]
+=== GET
+
+This method returns an order by id.
+
+[[overview-get-registered-order-success]]
+==== Success
+
+operation::registered_order/shouldReturnOrderWhenCallGet[]
+
+This method returns all orders.
+
+[[overview-getall-registered-order-success]]
+
+operation::registered_order/shouldReturnOrdersWhenCallGetAll[]
+
+[[overview-get-registered-order-failed]]
+==== Failed
+
+operation::registered_order/shouldReturn404WhenCallGet[snippets='http-response']
+[[overview-search-registered-order]]
+=== SEARCH
+
+This method search an order user by id.
+
+[[overview-get-search-registered-order-by-user-id-success]]
+==== Success
+
+operation::registered_order/shouldReturnOrderWhenCallSearchByUserID[]
+
+[[overview-get-search-registered-order-by-state-success]]
+==== Success
+
+operation::registered_order/shouldReturnOrderWhenCallSearchByState[]
+
+[[overview-get-search-registered-order-failed]]
+==== Failed
+
+operation::registered_order/shouldReturn400WhenSearchWithWrongKey[snippets='http-response']
+
+
+[[overview-post-registered-order]]
+=== POST
+
+This method adds an order.
+
+[[overview-post-registered-order-success]]
+==== Success
+
+operation::registered_order/shouldReturn200WhenCallPostForAdd[]
+
+
+[[overview-put-registered-order]]
+=== PUT
+
+This method updates an order.
+
+[[overview-put-registered-order-success]]
+==== Success
+
+operation::registered_order/shouldReturn200WhenCallPatchForUpdate[]
+
+[[overview-put-registered-order-failed]]
+==== Failed
+
+operation::registered_order/shouldReturn404WhenCallPatchForUpdateWithNonExistingOrder[snippets='http-response']
+
+
+[[overview-delete-registered-order]]
+=== DELETE
+
+This method delete an order by id.
+
+
+[[overview-delete-registered-order-success]]
+==== Success
+
+operation::registered_order/shouldReturn200WhenCallDelete[]
+
+[[overview-delete-registered-order-failed]]
+==== Failed
+
+operation::registered_order/shouldReturn404WhenCallDelete[snippets='http-response']
+
+
+[[overview-unregistered-order-api]]
+== Unregistered order API
+
+[[overview-get-unregistered-order]]
+=== GET
+
+This method returns an order by id.
+
+[[overview-get-unregistered-order-success]]
+==== Success
+
+operation::unregistered_order/shouldReturnOrderWhenCallGet[]
+
+This method returns all orders.
+
+[[overview-getall-unregistered-order-success]]
+
+operation::unregistered_order/shouldReturnOrderWhenCallGetAll[]
+
+[[overview-get-unregistered-order-failed]]
+==== Failed
+
+operation::registered_order/shouldReturn404WhenCallGet[snippets='http-response']
+[[overview-search-unregistered-order]]
+
+=== SEARCH
+
+This method search orders by phone number.
+
+[[overview-get-search-unregistered-order-by-phone-number-success]]
+==== Success
+
+operation::registered_order/shouldReturnOrderWhenCallSearchByUserID[]
+
+[[overview-get-search-unregistered-order-by-state-success]]
+==== Success
+
+This method search orders by phone order state.
+
+operation::registered_order/shouldReturnOrderWhenCallSearchByState[]
+
+[[overview-get-search-unregistered-order-failed]]
+==== Failed
+
+operation::registered_order/shouldReturn400WhenSearchWithWrongKey[snippets='http-response']
+
+
+[[overview-post-unregistered-order]]
+=== POST
+
+This method adds an order.
+
+[[overview-post-unregistered-order-success]]
+==== Success
+
+operation::registered_order/shouldReturn200WhenCallPostForAdd[]
+
+
+[[overview-put-unregistered-order]]
+=== PUT
+
+This method updates an order.
+
+[[overview-put-unregistered-order-success]]
+==== Success
+
+operation::registered_order/shouldReturn200WhenCallPatchForUpdate[]
+
+[[overview-put-unregistered-order-failed]]
+==== Failed
+
+operation::registered_order/shouldReturn404WhenCallPatchForUpdateWithNonExistingOrder[snippets='http-response']
+
+
+[[overview-delete-unregistered-order]]
+=== DELETE
+
+This method delete an order by id.
+
+[[overview-delete-unregistered-order-success]]
+==== Success
+
+operation::registered_order/shouldReturn200WhenCallDelete[]
+
+[[overview-delete-unregistered-order-failed]]
+==== Failed
+
+operation::registered_order/shouldReturn404WhenCallDelete[snippets='http-response']
+
+[[overview-basket-api]]
+== Basket API
+
+[[overview-get-basket]]
+=== GET
+
+This method returns items list in basket.
+
+[[overview-get-basket-success]]
+==== Success
+
+operation::basket/shouldReturnAllItemsWhenCallGetAll[]
+
+
+[[overview-post-basket]]
+=== POST
+
+This method adds an item to basket.
+
+[[overview-post-unregistered-order-success]]
+==== Success
+
+operation::basket/shouldReturn200WhenCallPostForAdd[]
+
+
+[[overview-checkout-basket]]
+=== Checkout
+
+This method create order and return order id.
+
+[[overview-put-basket-success]]
+==== Success
+
+operation::basket/shouldReturnUUIDWhenCheckout[]
+
+[[overview-delete-basket]]
+=== DELETE
+
+This method delete item from basket by id.
+
+[[overview-delete-basket-success]]
+==== Success
+
+operation::basket/shouldReturn200WhenDeleteExistingItem[]
+
+[[overview-delete-basket-failed]]
+==== Failed
+
+operation::basket/shouldReturn404WhenDeleteNonExistingItem[snippets='http-response']
+
