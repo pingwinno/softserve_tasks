@@ -4,67 +4,71 @@ import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-@SpringBootTest
+@DataJpaTest
+@TestPropertySource(locations = "classpath:application-integrationtest.properties")
 class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
-    private List<User> users = generateData();
+    private List<User> users = new ArrayList<>();
+
 
     @BeforeEach
     void init() {
-        userRepository.deleteAll();
-        userRepository.saveAll(users);
+        users.clear();
+        userRepository.saveAll(generateData()).forEach(users::add);
     }
 
-    //Should find user with id 0
     @Test
+    @DisplayName("Should find user with given id")
     void shouldBeEqualsWhenCallFindUserById() {
         User user = users.get(0);
         Assertions.assertEquals(user, userRepository.findById(user.getId()).orElseThrow());
     }
 
-    //Test findAll method and compare result with generated set
     @Test
+    @DisplayName("Test findAll method and compare result with generated set")
     void shouldBeEqualsWhenCallFindAll() {
-        Iterable<User> iterable = users;
-        Assertions.assertEquals(iterable, userRepository.findAll());
+        List<User> usersCallResult = new ArrayList<>();
+        userRepository.findAll().forEach(usersCallResult::add);
+        Assertions.assertTrue(usersCallResult.containsAll(users));
     }
 
-    //Test saveAll method and try to find each added element
     @Test
+    @DisplayName("Test saveAll method and try to find each added element")
     void shouldBeEqualsWhenSaveAll() {
-        userRepository.deleteAll();
-        userRepository.saveAll(users);
         for (User user : users) {
-            Assertions.assertEquals(user, userRepository.findById(user.getId()).orElseThrow());
+            Assertions.assertEquals(user, userRepository.findById(user.getId()).orElse(null));
         }
     }
 
-    //Should successfully save new user
     @Test
+    @DisplayName("Should successfully save new user")
     void shouldNotThrowWhenSaveRecord() {
-        int i = 30;
+        UUID uuid = UUID.randomUUID();
         User user = new User();
-        user.setId(i);
-        user.setName("shiro" + i);
-        user.setPassword("somePass" + i);
-        user.setDescription("some awesome user" + i);
+        user.setId(uuid);
+        user.setName("shiro" + uuid);
+        user.setPassword("somePass" + uuid);
+        user.setDescription("some awesome user" + uuid);
         user.setRole(Role.ADMIN);
         Assertions.assertDoesNotThrow(() -> userRepository.save(user));
     }
 
-    //Should successfully update old user
     @Test
+    @DisplayName("Should successfully update old user")
     void shouldReturnNewValueWhenUpdateRecord() {
-        User user = userRepository.findById(0L).orElseThrow();
+        User user = users.get(0);
         int i = 100;
         user.setName("shiro" + i);
         user.setPassword("somePass" + i);
@@ -73,10 +77,19 @@ class UserRepositoryTest {
         Assertions.assertEquals(user, userRepository.findById(user.getId()).orElseThrow());
     }
 
-    //Should successfully delete user and existsById should return false
     @Test
+    @DisplayName("Should successfully delete user and existsById should return false")
     void shouldReturnFalseWhenDeleteRecord() {
-        User user = users.get(0);
+        UUID uuid = UUID.randomUUID();
+        User user = new User();
+        user.setId(uuid);
+        user.setName("shiro" + uuid);
+        user.setPassword("somePass" + uuid);
+        user.setDescription("some awesome user" + uuid);
+        user.setRole(Role.ADMIN);
+        user = userRepository.save(user);
+        System.out.println(user);
+        Assertions.assertTrue(userRepository.existsById(user.getId()));
         userRepository.delete(user);
         Assertions.assertFalse(userRepository.existsById(user.getId()));
     }
@@ -85,7 +98,7 @@ class UserRepositoryTest {
         List<User> users = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             User user = new User();
-            user.setId(i);
+            user.setId(UUID.randomUUID());
             user.setName("shiro" + i);
             user.setPassword("somePass" + i);
             user.setDescription("some awesome user" + i);

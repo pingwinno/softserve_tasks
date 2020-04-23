@@ -1,18 +1,18 @@
 package com.softserveinc.webapp.service;
 
-import com.softserveinc.webapp.exception.UserAlreadyExistsException;
 import com.softserveinc.webapp.exception.UserNotFoundException;
 import com.softserveinc.webapp.exception.WrongParamsException;
 import com.softserveinc.webapp.model.User;
-import org.springframework.stereotype.Service;
 
-@Service
+import java.util.UUID;
+
+
 public interface UserService {
-    User getUser(long id) throws UserNotFoundException;
+    User getUser(UUID id) throws UserNotFoundException;
 
-    void addUser(User user) throws UserAlreadyExistsException, WrongParamsException;
+    User addUser(User user) throws WrongParamsException;
 
-    void updateUser(long id, User user) throws UserNotFoundException, WrongParamsException;
+    void updateUser(UUID id, User user) throws UserNotFoundException, WrongParamsException;
 
-    void deleteUser(long id) throws UserNotFoundException;
+    void deleteUser(UUID id) throws UserNotFoundException;
 }

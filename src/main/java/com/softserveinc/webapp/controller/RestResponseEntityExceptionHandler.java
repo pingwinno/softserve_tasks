@@ -1,6 +1,5 @@
 package com.softserveinc.webapp.controller;
 
-import com.softserveinc.webapp.exception.UserAlreadyExistsException;
 import com.softserveinc.webapp.exception.UserNotFoundException;
 import com.softserveinc.webapp.exception.WrongParamsException;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +15,7 @@ public class RestResponseEntityExceptionHandler
         extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value
-            = { WrongParamsException.class})
+            = {WrongParamsException.class})
     protected ResponseEntity<Object> handleBadRequest(
             Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(),
@@ -24,15 +23,7 @@ public class RestResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(value
-            = { UserAlreadyExistsException.class})
-    protected ResponseEntity<Object> handleConflict(
-            Exception ex, WebRequest request) {
-        return handleExceptionInternal(ex, ex.getMessage(),
-                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
-    }
-
-    @ExceptionHandler(value
-            = { UserNotFoundException.class})
+            = {UserNotFoundException.class})
     protected ResponseEntity<Object> handleNotFound(
             Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(),
