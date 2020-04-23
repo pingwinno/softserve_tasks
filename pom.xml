@@ -70,6 +70,12 @@
             <version>6.0.2.Final</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

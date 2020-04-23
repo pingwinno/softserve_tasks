@@ -1,5 +1,6 @@
 package com.softserveinc.webapp.model;
 
+import com.softserveinc.webapp.utils.PhoneNumberGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,7 +15,6 @@ import java.util.UUID;
 
 class UserValidationTest {
 
-
     private Set<ConstraintViolation<User>> violations;
     private ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     private Validator validator = factory.getValidator();
@@ -28,6 +28,7 @@ class UserValidationTest {
         user.setName("name" + uuid);
         user.setPassword("somePass" + uuid);
         user.setDescription("some awesome user" + uuid);
+        user.setPhoneNumber(PhoneNumberGenerator.generate());
         user.setRole(Role.ADMIN);
     }
 
