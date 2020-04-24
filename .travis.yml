@@ -2,3 +2,5 @@ language: java
 jdk:
   - oraclejdk12
   - openjdk12
+before_install:
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
