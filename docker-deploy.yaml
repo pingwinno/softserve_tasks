@@ -1,0 +1,31 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+
+networks:
+  webapp-db:
+    driver: bridge
+
+volumes:
+  db-postg:
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db-postg:/var/lib/postgresql
+    networks:
+      - webapp-db
+
+  webapp:
+    image: webapp
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - webapp-db
