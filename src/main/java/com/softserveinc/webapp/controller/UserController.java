@@ -1,13 +1,13 @@
 package com.softserveinc.webapp.controller;
 
-import com.softserveinc.webapp.exception.UserNotFoundException;
-import com.softserveinc.webapp.exception.WrongParamsException;
 import com.softserveinc.webapp.model.User;
-import com.softserveinc.webapp.service.UserService;
+import com.softserveinc.webapp.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -17,24 +17,34 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/{id}")
-    public User getUser(@PathVariable UUID id) throws UserNotFoundException {
-        return userService.getUser(id);
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<User> getUser() {
+        return userService.getAll();
+    }
+
+    @GetMapping(path = "search", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<User> getUser(@RequestParam Map<String, String> request) {
+        return userService.getBy(request);
+    }
+
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public User getUser(@PathVariable UUID id) {
+        return userService.get(id);
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public User addUser(@RequestBody User user) throws WrongParamsException {
-        return userService.addUser(user);
+    public User addUser(@RequestBody User user) {
+        return userService.add(user);
     }
 
-    @PatchMapping("/{id}")
-    public void updateUser(@PathVariable UUID id, @RequestBody User user) throws UserNotFoundException, WrongParamsException {
-        userService.updateUser(id, user);
+    @PutMapping("/{id}")
+    public void updateUser(@PathVariable UUID id, @RequestBody User user) {
+        userService.update(id, user);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable UUID id) throws UserNotFoundException {
-        userService.deleteUser(id);
+    public void deleteUser(@PathVariable UUID id) {
+        userService.delete(id);
     }
 }

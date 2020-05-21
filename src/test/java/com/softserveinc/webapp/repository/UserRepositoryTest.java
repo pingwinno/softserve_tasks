@@ -2,6 +2,7 @@ package com.softserveinc.webapp.repository;
 
 import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
+import com.softserveinc.webapp.utils.EntitiesGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +27,7 @@ class UserRepositoryTest {
     @BeforeEach
     void init() {
         users.clear();
-        userRepository.saveAll(generateData()).forEach(users::add);
+        userRepository.saveAll(EntitiesGenerator.generateUsers()).forEach(users::add);
     }
 
     @Test
@@ -80,31 +81,9 @@ class UserRepositoryTest {
     @Test
     @DisplayName("Should successfully delete user and existsById should return false")
     void shouldReturnFalseWhenDeleteRecord() {
-        UUID uuid = UUID.randomUUID();
-        User user = new User();
-        user.setId(uuid);
-        user.setName("shiro" + uuid);
-        user.setPassword("somePass" + uuid);
-        user.setDescription("some awesome user" + uuid);
-        user.setRole(Role.ADMIN);
-        user = userRepository.save(user);
-        System.out.println(user);
+        User user = userRepository.findAll().get(3);
         Assertions.assertTrue(userRepository.existsById(user.getId()));
         userRepository.delete(user);
         Assertions.assertFalse(userRepository.existsById(user.getId()));
-    }
-
-    private List<User> generateData() {
-        List<User> users = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            User user = new User();
-            user.setId(UUID.randomUUID());
-            user.setName("shiro" + i);
-            user.setPassword("somePass" + i);
-            user.setDescription("some awesome user" + i);
-            user.setRole(Role.ADMIN);
-            users.add(user);
-        }
-        return users;
     }
 }

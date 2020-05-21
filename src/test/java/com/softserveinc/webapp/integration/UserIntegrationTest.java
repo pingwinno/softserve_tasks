@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softserveinc.webapp.model.Role;
 import com.softserveinc.webapp.model.User;
 import com.softserveinc.webapp.repository.UserRepository;
+import com.softserveinc.webapp.utils.PhoneNumberGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,26 +14,27 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest
+@SpringBootTest(properties = {"spring.datasource.url=jdbc:h2:mem:UserIntegrationTest"
+        , "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect"
+        , "spring.jpa.hibernate.ddl-auto=create"})
 @AutoConfigureMockMvc
-@TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+public class UserIntegrationTest {
 
-public class IntegrationTest {
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     private User userWithID = new User();
     private User userWithoutID = new User();
     private String userJsonWithID;
@@ -41,14 +43,17 @@ public class IntegrationTest {
 
     @BeforeEach
     public void init() throws JsonProcessingException {
+        long phoneNumber = PhoneNumberGenerator.generate();
         userWithoutID.setName("user");
         userWithoutID.setPassword("somePass");
         userWithoutID.setDescription("some user");
         userWithoutID.setRole(Role.ADMIN);
+        userWithoutID.setPhoneNumber(phoneNumber);
         userWithID.setName("user");
         userWithID.setPassword("somePass");
         userWithID.setDescription("some user");
         userWithID.setRole(Role.ADMIN);
+        userWithID.setPhoneNumber(phoneNumber);
         ObjectMapper objectMapper = new ObjectMapper();
         userWithID = userRepository.save(userWithoutID);
         userJsonWithID = objectMapper.writeValueAsString(userWithID);
@@ -59,6 +64,15 @@ public class IntegrationTest {
     @DisplayName("Test get method")
     public void shouldReturnUserWhenCallGet() throws Exception {
         this.mockMvc.perform(get("/user/{id}", userWithID.getId())).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().string(containsString(userJsonWithID)));
+    }
+
+    @Test
+    @DisplayName("Test search by name")
+    public void shouldReturnUserWhenCallGetByName() throws Exception {
+        this.mockMvc.perform(get("/user/search?{field}={value}", "name", userWithID.getName()))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().string(containsString(userJsonWithID)));
     }
 
@@ -82,8 +96,8 @@ public class IntegrationTest {
 
     @Test
     @DisplayName("Test update method")
-    public void shouldReturn200WhenCallPatchForUpdate() throws Exception {
-        this.mockMvc.perform(patch("/user/{id}", userWithID.getId())
+    public void shouldReturn200WhenCallPutForUpdate() throws Exception {
+        this.mockMvc.perform(put("/user/{id}", userWithID.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
                 .content(userJsonWithID))
@@ -93,8 +107,8 @@ public class IntegrationTest {
 
     @Test
     @DisplayName("Test patch method with non existing user")
-    public void shouldReturn404WhenCallPatchForUpdateWithNonExistingUser() throws Exception {
-        this.mockMvc.perform(patch("/user/{id}", UUID.randomUUID())
+    public void shouldReturn404WhenCallPutForUpdateWithNonExistingUser() throws Exception {
+        this.mockMvc.perform(put("/user/{id}", UUID.randomUUID())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
                 .content(userJsonWithID))
